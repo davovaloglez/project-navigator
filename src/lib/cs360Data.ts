@@ -78,10 +78,20 @@ async function loadFromUrl(): Promise<CsCliente[] | null> {
 
 async function loadFromS3(): Promise<CsCliente[] | null> {
   const bucket = envVar('CS360_S3_BUCKET');
-  if (!bucket) return null;
   const key = envVar('CS360_S3_KEY') ?? DEFAULT_S3_KEY;
   try {
-    const client = new S3Client({ region: envVar('AWS_REGION') || 'us-east-1' });
+    const endpoint = envVar('R2_ENDPOINT') || envVar('S3_ENDPOINT');
+    const accessKeyId = envVar('R2_ACCESS_KEY_ID') || envVar('AWS_ACCESS_KEY_ID');
+    const secretAccessKey = envVar('R2_SECRET_ACCESS_KEY') || envVar('AWS_SECRET_ACCESS_KEY');
+    const region = envVar('AWS_REGION') || 'auto';
+
+    const client = new S3Client({
+      region,
+      ...(endpoint ? { endpoint } : {}),
+      ...(accessKeyId && secretAccessKey
+        ? { credentials: { accessKeyId, secretAccessKey } }
+        : {}),
+    });
     const res = await client.send(new GetObjectCommand({ Bucket: bucket, Key: key }));
     if (!res.Body) return null;
     let bytes: Uint8Array = await res.Body.transformToByteArray();

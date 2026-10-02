@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.22.0] - 2026-10-02
+
+### Added
+
+**Soporte nativo para Cloudflare R2 (S3-Compatible)**
+- Integración de almacenamiento de objetos compatible con Cloudflare R2 para avatares de perfil y exports de contratos (`R2_ENDPOINT`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET_NAME`, `R2_PUBLIC_URL`).
+- Borrado limpio de avatares previos en URLs públicas de R2 (`.r2.dev` y dominios personalizados) en [src/lib/avatarBlob.ts](src/lib/avatarBlob.ts).
+- Script [scripts/initTursoDb.ts](scripts/initTursoDb.ts) para aprovisionar esquemas, migraciones y semillas en bases de datos de Turso (`npm run db:init`).
+- Script [scripts/validateDocs.ts](scripts/validateDocs.ts) para validar integridad de enlaces de documentación (`npm run docs:validate`).
+
+### Changed
+
+- Actualizada configuración de almacenamiento en [src/lib/cs360Data.ts](src/lib/cs360Data.ts) y [scripts/uploadCs360Export.ts](scripts/uploadCs360Export.ts) para admitir endpoints y credenciales de Cloudflare R2 manteniendo compatibilidad con AWS S3.
+- Actualizada documentación técnica en `documentation/dev/` y `.env.example` según las pautas de `COMO-DOCUMENTAR.md`.
+
 ## [1.21.0] - 2026-06-26
 
 ### Added

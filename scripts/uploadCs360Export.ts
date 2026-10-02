@@ -57,7 +57,18 @@ async function main(): Promise<void> {
   const mb = (n: number): string => (n / 1024 / 1024).toFixed(1);
   console.log(`Comprimido: ${mb(raw.length)} MB → ${mb(body.length)} MB (gzip)`);
 
-  const client = new S3Client({ region: process.env.AWS_REGION || 'us-east-1' });
+  const endpoint = process.env.R2_ENDPOINT || process.env.S3_ENDPOINT;
+  const accessKeyId = process.env.R2_ACCESS_KEY_ID || process.env.AWS_ACCESS_KEY_ID;
+  const secretAccessKey = process.env.R2_SECRET_ACCESS_KEY || process.env.AWS_SECRET_ACCESS_KEY;
+  const region = process.env.AWS_REGION || 'auto';
+
+  const client = new S3Client({
+    region,
+    ...(endpoint ? { endpoint } : {}),
+    ...(accessKeyId && secretAccessKey
+      ? { credentials: { accessKeyId, secretAccessKey } }
+      : {}),
+  });
   console.log(`Subiendo a s3://${bucket}/${key}...`);
   await client.send(
     new PutObjectCommand({

@@ -166,16 +166,17 @@ Listadas en [CLAUDE.md](../../../CLAUDE.md) sección "Environment Variables". Re
 | `GOOGLE_OAUTH_CLIENT_ID`, `GOOGLE_OAUTH_CLIENT_SECRET` | OAuth de Google |
 | `ALLOWED_GOOGLE_DOMAIN` | Opcional. Restringe registro de users al dominio |
 | `CRON_SECRET` | Bearer token para el cron de snapshots (lo envía el scheduler externo) |
-| `AVATAR_S3_BUCKET` | Bucket S3 para avatares. Requerido para subir/borrar fotos. Credenciales AWS vía la cadena por defecto del SDK (rol de ejecución en Amplify; claves locales en dev) |
-| `AWS_REGION` | Opcional. Región del bucket (default `us-east-1`) |
-| `AVATAR_CDN_URL` | Opcional. Dominio CDN (CloudFront) frente al bucket |
+| `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_ENDPOINT` | Credenciales y endpoint S3-compatible de Cloudflare R2 |
+| `R2_BUCKET_NAME` / `AVATAR_S3_BUCKET` | Bucket en Cloudflare R2 o AWS S3 para avatares de perfil |
+| `R2_PUBLIC_URL` / `AVATAR_CDN_URL` | URL pública directa (ej. `https://pub-...r2.dev`) o dominio personalizado CDN |
+| `AWS_REGION` | Opcional. Región del bucket (`auto` para Cloudflare R2; default `us-east-1` en AWS) |
 | `AI_BEARER_TOKEN` | Bearer token server-side para `POST /api/cs360/analyze`. Si falta, ese endpoint responde 503 y el tablero CS 360 funciona sin IA (el botón "Generar" muestra un mensaje amigable). El prompt completo y el modelo se administran en el panel de Nexus (`ai.bit.lat`), no aquí |
 | `CS360_DATA_URL` | URL pública del export del tablero CS 360 publicado por Samva (`static.samva.io`; el path trae un GUID que puede cambiar al regenerarse el export — por eso es env var). **Fuente de producción preferida**; si falla o falta, se prueba el S3 propio |
 | `CS360_S3_BUCKET` | Bucket S3 privado con el export real del tablero CS 360 (fallback de producción). Se sube con `npm run cs360:upload`. Si falta, se prueba el archivo local y luego el mock curado |
 | `CS360_S3_KEY` | Opcional. Key del objeto del export en S3 (default `cs360/contratos_exportados.json.gz`) |
 | `CS360_DATA_FILE` | Opcional. Ruta al export real local para dev. Default: `mocks/healt-score/contratos_exportados.json` (gitignored). Si no existe, el tablero cae al mock curado de `src/data/` |
 
-`.env.example` documenta todas. En AWS Amplify, configurar en la consola → App settings → Environment variables.
+`.env.example` documenta todas. En AWS Amplify o el hosting de producción, configurar en el panel de variables de entorno.
 
 ## Comandos
 

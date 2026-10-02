@@ -1,6 +1,6 @@
 # `POST /api/me/avatar` · `DELETE /api/me/avatar`
 
-Sube o elimina la foto de perfil del usuario autenticado. El objeto vive en Amazon S3; la URL se persiste en `user.image` mediante `authClient.updateUser` desde el cliente.
+Sube o elimina la foto de perfil del usuario autenticado. El objeto vive en Cloudflare R2 (o Amazon S3); la URL se persiste en `user.image` mediante `authClient.updateUser` desde el cliente.
 
 - **Source:** [src/pages/api/me/avatar.ts](../../../src/pages/api/me/avatar.ts)
 - **Auth:** middleware (sesión requerida — 401 si no hay sesión). El `userId` se lee de `locals.user.id`.

@@ -7,18 +7,29 @@ function envVar(name: string): string | undefined {
 }
 
 function getS3Client(): S3Client {
-  return new S3Client({ region: envVar('AWS_REGION') || 'us-east-1' });
+  const endpoint = envVar('R2_ENDPOINT') || envVar('S3_ENDPOINT');
+  const accessKeyId = envVar('R2_ACCESS_KEY_ID') || envVar('AWS_ACCESS_KEY_ID');
+  const secretAccessKey = envVar('R2_SECRET_ACCESS_KEY') || envVar('AWS_SECRET_ACCESS_KEY');
+  const region = envVar('AWS_REGION') || 'auto';
+
+  return new S3Client({
+    region,
+    ...(endpoint ? { endpoint } : {}),
+    ...(accessKeyId && secretAccessKey
+      ? { credentials: { accessKeyId, secretAccessKey } }
+      : {}),
+  });
 }
 
 function getBucket(): string {
-  const b = envVar('AVATAR_S3_BUCKET');
-  if (!b) throw new Error('AVATAR_S3_BUCKET no está configurado.');
+  const b = envVar('R2_BUCKET_NAME') || envVar('AVATAR_S3_BUCKET');
+  if (!b) throw new Error('R2_BUCKET_NAME o AVATAR_S3_BUCKET no están configurados.');
   return b;
 }
 
 function getPublicUrl(key: string): string {
-  const cdnBase = envVar('AVATAR_CDN_URL');
-  if (cdnBase) return `${cdnBase.replace(/\/$/, '')}/${key}`;
+  const publicBase = envVar('R2_PUBLIC_URL') || envVar('AVATAR_CDN_URL');
+  if (publicBase) return `${publicBase.replace(/\/$/, '')}/${key}`;
   return `https://${getBucket()}.s3.amazonaws.com/${key}`;
 }
 
@@ -64,7 +75,20 @@ export async function currentUserImage(userId: string): Promise<string | null> {
 function isS3Url(url: string): boolean {
   try {
     const host = new URL(url).host;
-    return host.includes('.s3.') || host.includes('.s3-') || host.endsWith('.amazonaws.com');
+    const customPublic = envVar('R2_PUBLIC_URL');
+    if (customPublic) {
+      try {
+        const publicHost = new URL(customPublic).host;
+        if (host === publicHost) return true;
+      } catch {}
+    }
+    return (
+      host.includes('.s3.') ||
+      host.includes('.s3-') ||
+      host.endsWith('.amazonaws.com') ||
+      host.includes('.r2.cloudflarestorage.com') ||
+      host.endsWith('.r2.dev')
+    );
   } catch {
     return false;
   }
