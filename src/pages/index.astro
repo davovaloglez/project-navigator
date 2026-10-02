@@ -1,0 +1,14 @@
+---
+import Layout from '../layouts/Layout.astro';
+import DashboardSection from '../components/sections/DashboardSection';
+import { can } from '../lib/permissions';
+
+// Gate real: el middleware ya redirige a quien no tenga `page:dashboard`.
+// Pasamos el permiso como prop (server-side → SSR y cliente coinciden, sin
+// hydration mismatch) para que el componente se auto-proteja como 2ª capa.
+const canDashboard = await can(Astro.locals.user, 'page:dashboard');
+---
+
+<Layout title="Dashboard">
+  <DashboardSection canDashboard={canDashboard} client:load />
+</Layout>

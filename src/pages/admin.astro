@@ -1,0 +1,15 @@
+---
+import Layout from '../layouts/Layout.astro';
+import AdminSection from '../components/sections/AdminSection';
+import { can } from '../lib/permissions';
+
+// Belt-and-suspenders: el middleware ya gatea page:admin, pero re-verificamos
+// aquí por si la ruta se sirviera fuera del pipeline normal.
+if (!(await can(Astro.locals.user, 'page:admin'))) {
+  return Astro.redirect('/');
+}
+---
+
+<Layout title="Administración">
+  <AdminSection client:load />
+</Layout>

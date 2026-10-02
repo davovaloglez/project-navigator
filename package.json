@@ -1,0 +1,64 @@
+{
+  "name": "project-navigator",
+  "type": "module",
+  "version": "1.21.0",
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "create-user": "tsx --env-file=.env scripts/createUser.ts",
+    "reconcile-equipo": "tsx --env-file=.env scripts/reconcileEquipo.ts",
+    "seed-equipo": "tsx --env-file=.env scripts/seedEquipo.ts",
+    "apply-migration": "tsx --env-file=.env scripts/applyMigration.ts",
+    "cs360:upload": "tsx --env-file=.env scripts/uploadCs360Export.ts",
+    "auth:generate": "better-auth generate --output ./src/db/auth-schema.sql --y",
+    "check": "astro check",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@astrojs/check": "^0.9.9",
+    "@astrojs/react": "^5.0.4",
+    "@aws-sdk/client-s3": "^3.1062.0",
+    "@googleapis/sheets": "^13.0.2",
+    "@libsql/client": "^0.17.3",
+    "@libsql/kysely-libsql": "^0.4.1",
+    "@tailwindcss/vite": "^4.2.2",
+    "@types/dompurify": "^3.0.5",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "astro": "^6.2.2",
+    "astro-aws-amplify": "^0.4.1",
+    "better-auth": "^1.6.11",
+    "dompurify": "^3.4.11",
+    "google-auth-library": "^10.7.0",
+    "lucide-react": "^1.7.0",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "recharts": "^3.8.1",
+    "tailwindcss": "^4.2.2",
+    "typescript": "^5.9.3"
+  },
+  "overrides": {
+    "path-to-regexp": "^6.3.0",
+    "defu": "^6.1.7",
+    "yaml": "^2.8.3",
+    "drizzle-orm": "^0.45.2",
+    "@mrleebo/prisma-ast": "^0.15.0",
+    "chevrotain": "^12.0.0",
+    "brace-expansion": "^5.0.6",
+    "qs": "^6.15.2",
+    "ws": "^8.20.1"
+  },
+  "devDependencies": {
+    "@better-auth/cli": "^1.4.21",
+    "jsdom": "^29.1.1",
+    "tsx": "^4.21.0",
+    "vite-tsconfig-paths": "^6.1.1",
+    "vitest": "^3.2.0"
+  }
+}

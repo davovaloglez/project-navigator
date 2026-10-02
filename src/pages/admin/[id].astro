@@ -1,0 +1,15 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import AdminUserSection from '../../components/sections/AdminUserSection';
+import { can } from '../../lib/permissions';
+
+if (!(await can(Astro.locals.user, 'page:admin'))) {
+  return Astro.redirect('/');
+}
+
+const { id } = Astro.params;
+---
+
+<Layout title="Usuario">
+  <AdminUserSection userId={id!} currentUserId={Astro.locals.user?.id ?? ''} client:load />
+</Layout>

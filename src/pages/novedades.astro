@@ -1,0 +1,14 @@
+---
+import Layout from '../layouts/Layout.astro';
+import NovedadesSection from '../components/sections/NovedadesSection';
+import changelogRaw from '../../CHANGELOG.md?raw';
+import pkg from '../../package.json';
+import { parseChangelog } from '../utils/changelog';
+
+const releases = parseChangelog(changelogRaw);
+const currentVersion = pkg.version;
+---
+
+<Layout title="Novedades">
+  <NovedadesSection releases={releases} currentVersion={currentVersion} client:load />
+</Layout>

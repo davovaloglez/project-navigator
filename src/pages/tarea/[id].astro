@@ -1,0 +1,10 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import TareaDetailSection from '../../components/sections/TareaDetailSection';
+
+const { id } = Astro.params;
+---
+
+<Layout title={`Tarea ${id ?? ''}`}>
+  <TareaDetailSection id={id!} client:load />
+</Layout>

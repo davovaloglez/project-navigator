@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'cd \"$CLAUDE_PROJECT_DIR\" 2>/dev/null || cd \"$(pwd)\"; changed_src=$(git diff --name-only HEAD 2>/dev/null | grep -E \"^(src/components/sections/|src/utils/|src/hooks/|src/pages/api/|src/data/glossary\\\\.ts|src/middleware\\\\.ts|src/lib/|src/db/|src/components/ui/|src/components/charts/|vercel\\\\.json|\\\\.env\\\\.example)\" || true); changed_docs=$(git diff --name-only HEAD 2>/dev/null | grep -E \"^documentation/\" || true); if [ -n \"$changed_src\" ] && [ -z \"$changed_docs\" ]; then count=$(echo \"$changed_src\" | wc -l | tr -d \" \"); echo \"\\n[docs-keeper] $count source file(s) changed without doc updates. Run /sync-docs to review.\" >&2; fi; exit 0'"
+          }
+        ]
+      }
+    ]
+  }
+}

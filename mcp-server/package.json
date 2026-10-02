@@ -1,0 +1,32 @@
+{
+  "name": "project-navigator-mcp",
+  "version": "0.4.0",
+  "description": "MCP server for Project Navigator — proxies the authenticated Astro API so it inherits the user's role, permissions and data scoping.",
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "bin": {
+    "project-navigator-mcp": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/index.ts",
+    "start": "node dist/index.js",
+    "inspect": "npx -y @modelcontextprotocol/inspector node dist/index.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "zod": "^3.23.8"
+  },
+  "overrides": {
+    "esbuild": "^0.28.1",
+    "hono": "^4.12.26"
+  },
+  "devDependencies": {
+    "@types/node": "^22.19.19",
+    "tsx": "^4.19.2",
+    "typescript": "^5.9.3"
+  }
+}

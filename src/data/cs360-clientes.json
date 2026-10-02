@@ -1,0 +1,875 @@
+[
+  {
+    "id": "cli-001",
+    "numero_cliente": "10042",
+    "nombre": "Colegio Monte Verde",
+    "alias": "Monte Verde",
+    "estatus": "Activo",
+    "url": "https://app.samva.io/PnlCliente/Detalle.aspx?ID=10042",
+    "url_academic": "https://monteverde.samva.io",
+    "fecha_vigencia": "2026-12-15",
+    "alumnos_vigentes": 482,
+    "nivel_servicio": "Premium",
+    "resultado_html_magnum": null,
+    "kpi_financiero": { "ranking": 2, "clasificacion_abc": "A", "es_vital": true },
+    "uso_plataforma": {
+      "alumnos_inscritos_admon_actuales": 482,
+      "admin_finanzas_pagos": 1240,
+      "admin_finanzas_facturas": 310,
+      "control_escolar_clases_contenidos_adicionales": 96,
+      "crm_prospectos_actuales": 58
+    },
+    "tickets": [
+      {
+        "id": "tk-1001",
+        "folio": "SAM-8821",
+        "titulo": "Error al generar boletas del 3er bimestre",
+        "estatus": "Solucionado",
+        "prioridad": "Alta",
+        "tipo_incidencia": "Error de plataforma",
+        "equipo_actual": "Mesa de Soporte N2",
+        "asignado_actual": "Raúl Cisneros",
+        "fecha_registro": "2026-03-12T09:40:00",
+        "descripcion": "<p>Al intentar generar las boletas del tercer bimestre el sistema arroja <strong>error 500</strong> en el módulo de control escolar.</p>",
+        "comentarios": "<p>Se corrigió el cálculo de promedios con materias optativas. Desplegado el 14/03. Cliente confirmó funcionamiento.</p>",
+        "url": null
+      },
+      {
+        "id": "tk-1002",
+        "folio": "SAM-9034",
+        "titulo": "Duda sobre conciliación de pagos con SPEI",
+        "estatus": "Cerrado",
+        "prioridad": "Media",
+        "tipo_incidencia": "Duda de uso",
+        "equipo_actual": "Customer Success",
+        "asignado_actual": "Carolina Méndez",
+        "fecha_registro": "2026-04-02T11:15:00",
+        "descripcion": "<p>La administradora pregunta cómo conciliar pagos SPEI que entran con referencia incorrecta.</p>",
+        "comentarios": "<p>Se agendó sesión de capacitación y se compartió la guía de conciliación manual.</p>",
+        "url": null
+      },
+      {
+        "id": "tk-1003",
+        "folio": "SAM-9377",
+        "titulo": "Solicitud: reporte de cartera vencida por grupo",
+        "estatus": "En revisión",
+        "prioridad": "Baja",
+        "tipo_incidencia": "Solicitud de mejora",
+        "equipo_actual": "Desarrollo",
+        "asignado_actual": "Equipo Producto",
+        "fecha_registro": "2026-05-18T16:05:00",
+        "descripcion": "<p>Solicitan un reporte exportable de cartera vencida agrupado por grado y grupo.</p>",
+        "comentarios": "<p>En análisis de producto; candidato para el release Q3.</p>",
+        "url": null
+      },
+      {
+        "id": "tk-1004",
+        "folio": "SAM-9501",
+        "titulo": "Factura global de mayo no timbra",
+        "estatus": "Abierto",
+        "prioridad": "Media",
+        "tipo_incidencia": "Facturación",
+        "equipo_actual": "Mesa de Soporte N1",
+        "asignado_actual": "Brenda Líos",
+        "fecha_registro": "2026-06-03T10:22:00",
+        "descripcion": "<p>El timbrado de la factura global de mayo regresa código <strong>CFDI40147</strong>.</p>",
+        "comentarios": null,
+        "url": null
+      }
+    ],
+    "actividades": [
+      {
+        "id": "act-1101",
+        "fecha_inicio": "2026-05-28T12:00:00",
+        "tipo_nombre": "Llamada de seguimiento",
+        "responsable": "Carolina Méndez",
+        "asunto": "Seguimiento trimestral Q2 y plan de renovación anticipada",
+        "contenido": "<p>Se revisaron KPIs de adopción. La dirección está <strong>muy satisfecha</strong>; interesados en el módulo de transporte escolar. Se acordó propuesta de renovación anticipada con descuento.</p>"
+      },
+      {
+        "id": "act-1102",
+        "fecha_inicio": "2026-04-15T09:30:00",
+        "tipo_nombre": "Sesión de capacitación",
+        "responsable": "Luis Ortega",
+        "asunto": "Capacitación de conciliación bancaria a equipo administrativo",
+        "contenido": "<p>Asistieron 4 personas del área administrativa. Quedó dominado el flujo de conciliación SPEI.</p>"
+      },
+      {
+        "id": "act-1103",
+        "fecha_inicio": "2026-02-20T13:00:00",
+        "tipo_nombre": "Auditoría de cuenta",
+        "responsable": "Patricia Salas",
+        "asunto": "Auditoría semestral de configuración y uso",
+        "contenido": "<h4>Resultado de auditoría</h4><ul><li>Configuración de ciclos: <strong>correcta</strong></li><li>Uso de módulo de pagos: 92%</li><li>Oportunidad: activar recordatorios automáticos de cobranza</li></ul>"
+      },
+      {
+        "id": "act-1104",
+        "fecha_inicio": "2025-11-10T10:00:00",
+        "tipo_nombre": "Visita presencial",
+        "responsable": "Carolina Méndez",
+        "asunto": "Visita de inicio de ciclo y entrega de plan de éxito",
+        "contenido": "<p>Se presentó el plan de éxito 2025-2026 a la dirección general.</p>"
+      },
+      {
+        "id": "act-1105",
+        "fecha_inicio": "2025-08-22T11:30:00",
+        "tipo_nombre": "Correo",
+        "responsable": "Luis Ortega",
+        "asunto": "Envío de calendario de webinars de inicio de ciclo",
+        "contenido": null
+      }
+    ],
+    "llamadas": [
+      {
+        "id": "ll-1201",
+        "fecha_inicio": "2026-05-28T12:00:00",
+        "agente_nombre": "Carolina Méndez",
+        "duracion_textual": "32 min",
+        "percepcion_cliente_estado": "Excelente",
+        "percepcion_cliente_texto": "La directora destacó la rapidez del soporte y el impacto del módulo de cobranza en su flujo de caja.",
+        "calificacion": 9.6,
+        "grabacion": null,
+        "resumen": "Seguimiento Q2: cliente promotor, interesado en módulo de transporte."
+      },
+      {
+        "id": "ll-1202",
+        "fecha_inicio": "2026-03-14T17:20:00",
+        "agente_nombre": "Raúl Cisneros",
+        "duracion_textual": "14 min",
+        "percepcion_cliente_estado": "Bueno",
+        "percepcion_cliente_texto": "Confirmaron que las boletas ya generan correctamente; agradecieron la atención.",
+        "calificacion": 8.4,
+        "grabacion": null,
+        "resumen": "Cierre del incidente SAM-8821."
+      },
+      {
+        "id": "ll-1203",
+        "fecha_inicio": "2025-09-05T10:45:00",
+        "agente_nombre": "Carolina Méndez",
+        "duracion_textual": "25 min",
+        "percepcion_cliente_estado": "Excelente",
+        "percepcion_cliente_texto": "Inicio de ciclo sin incidentes; el portal de padres tuvo muy buena recepción.",
+        "calificacion": 9.2,
+        "grabacion": null,
+        "resumen": "Revisión post arranque de ciclo escolar."
+      }
+    ]
+  },
+  {
+    "id": "cli-002",
+    "numero_cliente": "10117",
+    "nombre": "Instituto Bilingüe Aurora",
+    "alias": "Aurora",
+    "estatus": "En riesgo",
+    "url": "https://app.samva.io/PnlCliente/Detalle.aspx?ID=10117",
+    "url_academic": "https://aurora.samva.io",
+    "fecha_vigencia": "2026-07-20",
+    "alumnos_vigentes": 215,
+    "nivel_servicio": "Estándar",
+    "resultado_html_magnum": null,
+    "kpi_financiero": { "ranking": 9, "clasificacion_abc": "B", "es_vital": false },
+    "uso_plataforma": {
+      "alumnos_inscritos_admon_actuales": 215,
+      "admin_finanzas_pagos": 410,
+      "admin_finanzas_facturas": 88,
+      "control_escolar_clases_contenidos_adicionales": 12,
+      "crm_prospectos_actuales": 4
+    },
+    "tickets": [
+      {
+        "id": "tk-2001",
+        "folio": "SAM-9105",
+        "titulo": "Caída intermitente del portal de padres",
+        "estatus": "Abierto",
+        "prioridad": "Crítica",
+        "tipo_incidencia": "Error de plataforma",
+        "equipo_actual": "Desarrollo",
+        "asignado_actual": "Equipo Infraestructura",
+        "fecha_registro": "2026-05-30T08:10:00",
+        "descripcion": "<p>Padres de familia reportan <strong>timeouts</strong> al consultar estados de cuenta entre 7:00 y 8:00 am.</p>",
+        "comentarios": "<p>Se identificó pico de carga; en optimización de queries del módulo de cobranza.</p>",
+        "url": null
+      },
+      {
+        "id": "tk-2002",
+        "folio": "SAM-9152",
+        "titulo": "Cobro duplicado a 12 familias",
+        "estatus": "En revisión",
+        "prioridad": "Crítica",
+        "tipo_incidencia": "Facturación",
+        "equipo_actual": "Mesa de Soporte N2",
+        "asignado_actual": "Brenda Líos",
+        "fecha_registro": "2026-06-01T09:55:00",
+        "descripcion": "<p>El cargo automático del 1 de junio se ejecutó dos veces para 12 familias. El cliente exige reembolso inmediato.</p>",
+        "comentarios": "<p>Reembolsos en proceso con el agregador de pagos; ETA 72 hrs.</p>",
+        "url": null
+      },
+      {
+        "id": "tk-2003",
+        "folio": "SAM-8990",
+        "titulo": "No se pueden editar horarios de secundaria",
+        "estatus": "Abierto",
+        "prioridad": "Alta",
+        "tipo_incidencia": "Error de plataforma",
+        "equipo_actual": "Mesa de Soporte N2",
+        "asignado_actual": "Raúl Cisneros",
+        "fecha_registro": "2026-05-12T13:30:00",
+        "descripcion": "<p>Al editar un horario con traslape el sistema bloquea el guardado sin mostrar el motivo.</p>",
+        "comentarios": null,
+        "url": null
+      },
+      {
+        "id": "tk-2004",
+        "folio": "SAM-8721",
+        "titulo": "Solicitud de exportación masiva de expedientes",
+        "estatus": "Abierto",
+        "prioridad": "Media",
+        "tipo_incidencia": "Solicitud de mejora",
+        "equipo_actual": "Desarrollo",
+        "asignado_actual": "Equipo Producto",
+        "fecha_registro": "2026-04-22T15:40:00",
+        "descripcion": "<p>Requieren exportar expedientes completos de alumnos en PDF por lote.</p>",
+        "comentarios": null,
+        "url": null
+      },
+      {
+        "id": "tk-2005",
+        "folio": "SAM-8650",
+        "titulo": "Error en cálculo de becas combinadas",
+        "estatus": "Solucionado",
+        "prioridad": "Alta",
+        "tipo_incidencia": "Error de plataforma",
+        "equipo_actual": "Mesa de Soporte N2",
+        "asignado_actual": "Raúl Cisneros",
+        "fecha_registro": "2026-04-10T10:05:00",
+        "descripcion": "<p>Las becas combinadas (deportiva + académica) aplicaban sólo el primer descuento.</p>",
+        "comentarios": "<p>Hotfix aplicado el 12/04; se recalcularon los estados de cuenta afectados.</p>",
+        "url": null
+      },
+      {
+        "id": "tk-2006",
+        "folio": "SAM-8512",
+        "titulo": "Capacitación pendiente para nuevas coordinadoras",
+        "estatus": "Abierto",
+        "prioridad": "Baja",
+        "tipo_incidencia": "Capacitación",
+        "equipo_actual": "Customer Success",
+        "asignado_actual": "Luis Ortega",
+        "fecha_registro": "2026-03-28T12:00:00",
+        "descripcion": "<p>Tres coordinadoras nuevas requieren onboarding del módulo académico.</p>",
+        "comentarios": null,
+        "url": null
+      },
+      {
+        "id": "tk-2007",
+        "folio": "SAM-8419",
+        "titulo": "Lentitud en carga de calificaciones",
+        "estatus": "Solucionado",
+        "prioridad": "Media",
+        "tipo_incidencia": "Error de plataforma",
+        "equipo_actual": "Mesa de Soporte N1",
+        "asignado_actual": "Sofía Reyna",
+        "fecha_registro": "2026-03-02T09:15:00",
+        "descripcion": "<p>La captura masiva de calificaciones tarda más de 40 segundos por grupo.</p>",
+        "comentarios": "<p>Optimización desplegada; tiempo actual ~4 segundos.</p>",
+        "url": null
+      },
+      {
+        "id": "tk-2008",
+        "folio": "SAM-8201",
+        "titulo": "Duda: configuración de recargos por pronto pago",
+        "estatus": "Cerrado",
+        "prioridad": "Baja",
+        "tipo_incidencia": "Duda de uso",
+        "equipo_actual": "Mesa de Soporte N1",
+        "asignado_actual": "Sofía Reyna",
+        "fecha_registro": "2026-02-11T11:45:00",
+        "descripcion": "<p>Preguntan cómo configurar descuento por pronto pago en colegiaturas.</p>",
+        "comentarios": "<p>Se compartió video-guía y quedó configurado en llamada.</p>",
+        "url": null
+      },
+      {
+        "id": "tk-2009",
+        "folio": "SAM-8016",
+        "titulo": "Facturas de enero con RFC incorrecto",
+        "estatus": "Cerrado",
+        "prioridad": "Alta",
+        "tipo_incidencia": "Facturación",
+        "equipo_actual": "Mesa de Soporte N2",
+        "asignado_actual": "Brenda Líos",
+        "fecha_registro": "2026-01-19T10:20:00",
+        "descripcion": "<p>Se emitieron 30 facturas con el RFC anterior del instituto tras su cambio de razón social.</p>",
+        "comentarios": "<p>Canceladas y refacturadas; se actualizó el RFC maestro.</p>",
+        "url": null
+      },
+      {
+        "id": "tk-2010",
+        "folio": "SAM-7903",
+        "titulo": "Solicitud de subdominio personalizado",
+        "estatus": "Cerrado",
+        "prioridad": "Baja",
+        "tipo_incidencia": "Solicitud de mejora",
+        "equipo_actual": "Desarrollo",
+        "asignado_actual": "Equipo Infraestructura",
+        "fecha_registro": "2025-12-09T14:00:00",
+        "descripcion": "<p>Solicitan que el portal responda en aurora.edu.mx además del subdominio Samva.</p>",
+        "comentarios": "<p>CNAME configurado y certificado emitido.</p>",
+        "url": null
+      },
+      {
+        "id": "tk-2011",
+        "folio": "SAM-7740",
+        "titulo": "Error al importar plantilla de inscripciones",
+        "estatus": "Solucionado",
+        "prioridad": "Media",
+        "tipo_incidencia": "Error de plataforma",
+        "equipo_actual": "Mesa de Soporte N1",
+        "asignado_actual": "Sofía Reyna",
+        "fecha_registro": "2025-11-14T08:50:00",
+        "descripcion": "<p>La plantilla de Excel de reinscripción truncaba apellidos con acentos.</p>",
+        "comentarios": "<p>Corregido encoding del importador.</p>",
+        "url": null
+      },
+      {
+        "id": "tk-2012",
+        "folio": "SAM-7522",
+        "titulo": "Duda sobre cierre de ciclo escolar",
+        "estatus": "Cerrado",
+        "prioridad": "Baja",
+        "tipo_incidencia": "Duda de uso",
+        "equipo_actual": "Customer Success",
+        "asignado_actual": "Luis Ortega",
+        "fecha_registro": "2025-10-03T16:30:00",
+        "descripcion": "<p>Preguntan el procedimiento recomendado para el cierre de ciclo y promoción de alumnos.</p>",
+        "comentarios": "<p>Sesión realizada; se compartió checklist de cierre.</p>",
+        "url": null
+      }
+    ],
+    "actividades": [
+      {
+        "id": "act-2101",
+        "fecha_inicio": "2026-06-02T10:00:00",
+        "tipo_nombre": "Llamada de seguimiento",
+        "responsable": "Carolina Méndez",
+        "asunto": "Contención por cobros duplicados y plan de renovación",
+        "contenido": "<p>La directora administrativa está <strong>molesta</strong> por el cobro duplicado. Condiciona la renovación de julio a: 1) reembolsos completados, 2) estabilidad del portal de padres. Se acordó seguimiento semanal.</p>"
+      },
+      {
+        "id": "act-2102",
+        "fecha_inicio": "2026-05-06T12:30:00",
+        "tipo_nombre": "Correo",
+        "responsable": "Luis Ortega",
+        "asunto": "Propuesta de renovación 2026-2027 enviada",
+        "contenido": "<p>Se envió propuesta con upgrade a nivel Premium sin costo el primer trimestre.</p>"
+      },
+      {
+        "id": "act-2103",
+        "fecha_inicio": "2026-02-25T09:00:00",
+        "tipo_nombre": "Guía Magnum",
+        "responsable": "Patricia Salas",
+        "asunto": "Guía Magnum de adopción - resultado intermedio",
+        "contenido": "<h4>Guía Magnum</h4><ul><li>Adopción administrativa: <strong>78%</strong></li><li>Adopción académica: <strong>41%</strong> (foco de mejora)</li><li>Portal de padres: 65% de familias activas</li></ul><p>Recomendación: plan de capacitación al área académica.</p>"
+      },
+      {
+        "id": "act-2104",
+        "fecha_inicio": "2025-10-03T16:30:00",
+        "tipo_nombre": "Sesión de capacitación",
+        "responsable": "Luis Ortega",
+        "asunto": "Checklist de cierre de ciclo con equipo administrativo",
+        "contenido": "<p>Se ejecutó el checklist de cierre; quedaron dudas menores resueltas por correo.</p>"
+      }
+    ],
+    "llamadas": [
+      {
+        "id": "ll-2201",
+        "fecha_inicio": "2026-06-02T10:00:00",
+        "agente_nombre": "Carolina Méndez",
+        "duracion_textual": "41 min",
+        "percepcion_cliente_estado": "Crítico",
+        "percepcion_cliente_texto": "Muy molesta por los cobros duplicados; amenaza con evaluar otra plataforma si se repite.",
+        "calificacion": 3.5,
+        "grabacion": null,
+        "resumen": "Llamada de contención por incidente de cobros duplicados."
+      },
+      {
+        "id": "ll-2202",
+        "fecha_inicio": "2026-04-12T11:20:00",
+        "agente_nombre": "Raúl Cisneros",
+        "duracion_textual": "18 min",
+        "percepcion_cliente_estado": "Deficiente",
+        "percepcion_cliente_texto": "Reconocen la solución de becas pero se quejan de la recurrencia de errores en cobranza.",
+        "calificacion": 5.0,
+        "grabacion": null,
+        "resumen": "Cierre de incidente de becas con queja de fondo."
+      },
+      {
+        "id": "ll-2203",
+        "fecha_inicio": "2026-01-22T13:10:00",
+        "agente_nombre": "Sofía Reyna",
+        "duracion_textual": "12 min",
+        "percepcion_cliente_estado": "Bueno",
+        "percepcion_cliente_texto": "Conformes con la refacturación; piden mayor cuidado en cambios fiscales.",
+        "calificacion": 7.5,
+        "grabacion": null,
+        "resumen": "Seguimiento a refacturación por cambio de RFC."
+      },
+      {
+        "id": "ll-2204",
+        "fecha_inicio": "2025-11-20T09:40:00",
+        "agente_nombre": "Carolina Méndez",
+        "duracion_textual": "22 min",
+        "percepcion_cliente_estado": "Bueno",
+        "percepcion_cliente_texto": "Satisfechos con el arranque de ciclo, aunque mencionan lentitud ocasional.",
+        "calificacion": 7.8,
+        "grabacion": null,
+        "resumen": "Check-in de mitad de ciclo."
+      }
+    ]
+  },
+  {
+    "id": "cli-003",
+    "numero_cliente": "10089",
+    "nombre": "Universidad Tecnológica del Norte",
+    "alias": "UTN",
+    "estatus": "Suspendido",
+    "url": "https://app.samva.io/PnlCliente/Detalle.aspx?ID=10089",
+    "url_academic": null,
+    "fecha_vigencia": "2026-04-30",
+    "alumnos_vigentes": 1240,
+    "nivel_servicio": "Premium",
+    "resultado_html_magnum": null,
+    "kpi_financiero": { "ranking": 4, "clasificacion_abc": "A", "es_vital": true },
+    "uso_plataforma": {
+      "alumnos_inscritos_admon_actuales": 1240,
+      "admin_finanzas_pagos": 95,
+      "admin_finanzas_facturas": 12,
+      "control_escolar_clases_contenidos_adicionales": 3,
+      "crm_prospectos_actuales": 0
+    },
+    "tickets": [
+      {
+        "id": "tk-3001",
+        "folio": "SAM-9210",
+        "titulo": "Acceso suspendido: aclaración de adeudo",
+        "estatus": "Abierto",
+        "prioridad": "Crítica",
+        "tipo_incidencia": "Facturación",
+        "equipo_actual": "Finanzas",
+        "asignado_actual": "Brenda Líos",
+        "fecha_registro": "2026-05-20T10:00:00",
+        "descripcion": "<p>El cliente disputa el monto del último trimestre; el contrato venció el 30/04 y el servicio está suspendido parcialmente.</p>",
+        "comentarios": "<p>Dirección comercial negociando convenio de pago.</p>",
+        "url": null
+      },
+      {
+        "id": "tk-3002",
+        "folio": "SAM-8845",
+        "titulo": "Integración con su ERP dejó de sincronizar",
+        "estatus": "Abierto",
+        "prioridad": "Alta",
+        "tipo_incidencia": "Error de plataforma",
+        "equipo_actual": "Desarrollo",
+        "asignado_actual": "Equipo Integraciones",
+        "fecha_registro": "2026-03-18T14:25:00",
+        "descripcion": "<p>La sincronización nocturna con su ERP financiero falla desde el cambio de credenciales.</p>",
+        "comentarios": "<p>Esperando que el cliente comparta las nuevas credenciales del servicio.</p>",
+        "url": null
+      },
+      {
+        "id": "tk-3003",
+        "folio": "SAM-8430",
+        "titulo": "Solicitud de exportación total de datos",
+        "estatus": "En revisión",
+        "prioridad": "Alta",
+        "tipo_incidencia": "Solicitud de mejora",
+        "equipo_actual": "Customer Success",
+        "asignado_actual": "Patricia Salas",
+        "fecha_registro": "2026-03-05T09:30:00",
+        "descripcion": "<p>Piden exportación completa de su información histórica. <strong>Posible señal de migración a otro proveedor.</strong></p>",
+        "comentarios": null,
+        "url": null
+      },
+      {
+        "id": "tk-3004",
+        "folio": "SAM-7611",
+        "titulo": "Error en reporte de titulación",
+        "estatus": "Solucionado",
+        "prioridad": "Media",
+        "tipo_incidencia": "Error de plataforma",
+        "equipo_actual": "Mesa de Soporte N2",
+        "asignado_actual": "Raúl Cisneros",
+        "fecha_registro": "2025-10-28T11:00:00",
+        "descripcion": "<p>El reporte de egresados en proceso de titulación omitía la generación 2021.</p>",
+        "comentarios": "<p>Corregido el filtro de generaciones.</p>",
+        "url": null
+      }
+    ],
+    "actividades": [
+      {
+        "id": "act-3101",
+        "fecha_inicio": "2026-05-22T13:00:00",
+        "tipo_nombre": "Llamada de seguimiento",
+        "responsable": "Patricia Salas",
+        "asunto": "Negociación de convenio de pago y renovación vencida",
+        "contenido": "<p>El rector pide reconsiderar tarifas. <strong>Renovación vencida desde el 30/04.</strong> Riesgo alto de churn; comercial preparó propuesta de convenio a 6 meses.</p>"
+      },
+      {
+        "id": "act-3102",
+        "fecha_inicio": "2026-01-15T10:30:00",
+        "tipo_nombre": "Correo",
+        "responsable": "Carolina Méndez",
+        "asunto": "Recordatorio de vencimiento de contrato (90 días)",
+        "contenido": "<p>Se envió aviso formal de vencimiento con propuesta de renovación. Sin respuesta a la fecha.</p>"
+      }
+    ],
+    "llamadas": [
+      {
+        "id": "ll-3201",
+        "fecha_inicio": "2026-05-22T13:00:00",
+        "agente_nombre": "Patricia Salas",
+        "duracion_textual": "55 min",
+        "percepcion_cliente_estado": "Crítico",
+        "percepcion_cliente_texto": "El rector considera que el costo no se justifica con el uso actual; evalúan desarrollar una solución interna.",
+        "calificacion": 2.8,
+        "grabacion": null,
+        "resumen": "Negociación tensa de convenio; alto riesgo de no renovación."
+      },
+      {
+        "id": "ll-3202",
+        "fecha_inicio": "2025-11-08T12:15:00",
+        "agente_nombre": "Carolina Méndez",
+        "duracion_textual": "20 min",
+        "percepcion_cliente_estado": "Deficiente",
+        "percepcion_cliente_texto": "Quejas por la falta de seguimiento a la integración con su ERP.",
+        "calificacion": 4.2,
+        "grabacion": null,
+        "resumen": "Reclamo por integración ERP sin resolver."
+      }
+    ]
+  },
+  {
+    "id": "cli-004",
+    "numero_cliente": "10203",
+    "nombre": "Academia Delta Kids",
+    "alias": "Delta Kids",
+    "estatus": "Activo - Onboarding",
+    "url": "https://app.samva.io/PnlCliente/Detalle.aspx?ID=10203",
+    "url_academic": "https://deltakids.samva.io",
+    "fecha_vigencia": "2027-02-28",
+    "alumnos_vigentes": 0,
+    "nivel_servicio": "Básico",
+    "resultado_html_magnum": null,
+    "kpi_financiero": { "ranking": 18, "clasificacion_abc": "C", "es_vital": false },
+    "uso_plataforma": {
+      "alumnos_inscritos_admon_actuales": 0,
+      "admin_finanzas_pagos": 0,
+      "admin_finanzas_facturas": 0,
+      "control_escolar_clases_contenidos_adicionales": 0,
+      "crm_prospectos_actuales": 15
+    },
+    "tickets": [
+      {
+        "id": "tk-4001",
+        "folio": "SAM-9480",
+        "titulo": "Apoyo para carga inicial de alumnos",
+        "estatus": "Abierto",
+        "prioridad": "Media",
+        "tipo_incidencia": "Capacitación",
+        "equipo_actual": "Customer Success",
+        "asignado_actual": "Luis Ortega",
+        "fecha_registro": "2026-05-25T09:00:00",
+        "descripcion": "<p>La academia firmó en abril pero <strong>aún no carga su matrícula</strong>. Piden ayuda con la plantilla de importación.</p>",
+        "comentarios": "<p>Se agendó sesión de carga asistida para la primera semana de junio.</p>",
+        "url": null
+      }
+    ],
+    "actividades": [
+      {
+        "id": "act-4101",
+        "fecha_inicio": "2026-04-20T11:00:00",
+        "tipo_nombre": "Sesión de capacitación",
+        "responsable": "Luis Ortega",
+        "asunto": "Kickoff de onboarding",
+        "contenido": "<p>Sesión inicial de configuración. La directora es la única usuaria; <strong>riesgo de adopción por falta de equipo administrativo</strong>.</p>"
+      }
+    ],
+    "llamadas": [
+      {
+        "id": "ll-4201",
+        "fecha_inicio": "2026-04-20T11:00:00",
+        "agente_nombre": "Luis Ortega",
+        "duracion_textual": "38 min",
+        "percepcion_cliente_estado": "Bueno",
+        "percepcion_cliente_texto": "Entusiasmada con la plataforma pero con poco tiempo para configurarla.",
+        "calificacion": 7.0,
+        "grabacion": null,
+        "resumen": "Kickoff de onboarding; pendiente carga de matrícula."
+      }
+    ]
+  },
+  {
+    "id": "cli-005",
+    "numero_cliente": "10155",
+    "nombre": "Centro Escolar San Gabriel",
+    "alias": "San Gabriel",
+    "estatus": "Activo",
+    "url": "https://app.samva.io/PnlCliente/Detalle.aspx?ID=10155",
+    "url_academic": "https://sangabriel.samva.io",
+    "fecha_vigencia": "2027-01-31",
+    "alumnos_vigentes": 330,
+    "nivel_servicio": "Estándar",
+    "resultado_html_magnum": null,
+    "kpi_financiero": { "ranking": 11, "clasificacion_abc": "B", "es_vital": false },
+    "uso_plataforma": {
+      "alumnos_inscritos_admon_actuales": 330,
+      "admin_finanzas_pagos": 690,
+      "admin_finanzas_facturas": 145,
+      "control_escolar_clases_contenidos_adicionales": 44,
+      "crm_prospectos_actuales": 21
+    },
+    "tickets": [
+      {
+        "id": "tk-5001",
+        "folio": "SAM-9320",
+        "titulo": "Duda sobre reportes de asistencia",
+        "estatus": "Cerrado",
+        "prioridad": "Baja",
+        "tipo_incidencia": "Duda de uso",
+        "equipo_actual": "Mesa de Soporte N1",
+        "asignado_actual": "Sofía Reyna",
+        "fecha_registro": "2026-05-08T10:30:00",
+        "descripcion": "<p>Preguntan cómo exportar asistencia mensual por grupo.</p>",
+        "comentarios": "<p>Resuelto en llamada con guía paso a paso.</p>",
+        "url": null
+      },
+      {
+        "id": "tk-5002",
+        "folio": "SAM-8870",
+        "titulo": "Error visual en app móvil de padres",
+        "estatus": "Solucionado",
+        "prioridad": "Media",
+        "tipo_incidencia": "Error de plataforma",
+        "equipo_actual": "Desarrollo",
+        "asignado_actual": "Equipo Producto",
+        "fecha_registro": "2026-03-20T12:10:00",
+        "descripcion": "<p>El calendario de eventos se desbordaba en pantallas pequeñas.</p>",
+        "comentarios": "<p>Corregido en la versión 4.18 de la app.</p>",
+        "url": null
+      },
+      {
+        "id": "tk-5003",
+        "folio": "SAM-8333",
+        "titulo": "Solicitud: campos personalizados en expediente médico",
+        "estatus": "En revisión",
+        "prioridad": "Baja",
+        "tipo_incidencia": "Solicitud de mejora",
+        "equipo_actual": "Desarrollo",
+        "asignado_actual": "Equipo Producto",
+        "fecha_registro": "2026-02-14T09:45:00",
+        "descripcion": "<p>Quieren agregar campos de alergias y tipo de sangre al expediente del alumno.</p>",
+        "comentarios": null,
+        "url": null
+      }
+    ],
+    "actividades": [
+      {
+        "id": "act-5101",
+        "fecha_inicio": "2026-05-15T10:00:00",
+        "tipo_nombre": "Llamada de seguimiento",
+        "responsable": "Luis Ortega",
+        "asunto": "Check-in bimestral",
+        "contenido": "<p>Operación estable. Interesados en el módulo de admisiones para el siguiente ciclo.</p>"
+      },
+      {
+        "id": "act-5102",
+        "fecha_inicio": "2026-03-22T11:30:00",
+        "tipo_nombre": "Correo",
+        "responsable": "Sofía Reyna",
+        "asunto": "Confirmación de fix en app móvil",
+        "contenido": null
+      },
+      {
+        "id": "act-5103",
+        "fecha_inicio": "2026-01-28T09:00:00",
+        "tipo_nombre": "Sesión de capacitación",
+        "responsable": "Luis Ortega",
+        "asunto": "Refresh de módulo de facturación 4.0",
+        "contenido": "<p>Capacitación al nuevo contador del colegio sobre CFDI 4.0 y complementos de pago.</p>"
+      },
+      {
+        "id": "act-5104",
+        "fecha_inicio": "2025-09-12T13:00:00",
+        "tipo_nombre": "Llamada de seguimiento",
+        "responsable": "Carolina Méndez",
+        "asunto": "Arranque de ciclo 2025-2026",
+        "contenido": "<p>Arranque sin incidencias mayores.</p>"
+      }
+    ],
+    "llamadas": [
+      {
+        "id": "ll-5201",
+        "fecha_inicio": "2026-05-15T10:00:00",
+        "agente_nombre": "Luis Ortega",
+        "duracion_textual": "19 min",
+        "percepcion_cliente_estado": "Bueno",
+        "percepcion_cliente_texto": "Operación estable; valoran la atención aunque les gustaría más capacitación continua.",
+        "calificacion": 8.0,
+        "grabacion": null,
+        "resumen": "Check-in bimestral con interés en módulo de admisiones."
+      },
+      {
+        "id": "ll-5202",
+        "fecha_inicio": "2026-01-28T09:00:00",
+        "agente_nombre": "Luis Ortega",
+        "duracion_textual": "45 min",
+        "percepcion_cliente_estado": "Excelente",
+        "percepcion_cliente_texto": "El contador quedó muy satisfecho con la capacitación de facturación.",
+        "calificacion": 9.0,
+        "grabacion": null,
+        "resumen": "Capacitación CFDI 4.0 al nuevo contador."
+      }
+    ]
+  },
+  {
+    "id": "cli-006",
+    "numero_cliente": "10071",
+    "nombre": "Liceo Pedagógico Horizonte",
+    "alias": "Horizonte",
+    "estatus": "Activo",
+    "url": "https://app.samva.io/PnlCliente/Detalle.aspx?ID=10071",
+    "url_academic": "https://horizonte.samva.io",
+    "fecha_vigencia": "2026-09-30",
+    "alumnos_vigentes": 720,
+    "nivel_servicio": "Premium",
+    "resultado_html_magnum": "<h4>Guía Magnum — Auditoría integral (Mayo 2026)</h4><table style='width:100%;border-collapse:collapse'><tr><th style='text-align:left;border-bottom:1px solid #e2e8f0;padding:4px'>Dimensión</th><th style='text-align:left;border-bottom:1px solid #e2e8f0;padding:4px'>Resultado</th></tr><tr><td style='padding:4px'>Adopción administrativa</td><td style='padding:4px'><strong>95%</strong></td></tr><tr><td style='padding:4px'>Adopción académica</td><td style='padding:4px'><strong>88%</strong></td></tr><tr><td style='padding:4px'>Portal de padres</td><td style='padding:4px'>82% de familias activas</td></tr><tr><td style='padding:4px'>Salud financiera del módulo de cobranza</td><td style='padding:4px'>Cartera vencida &lt; 5%</td></tr></table><p>Cuenta modelo. Candidata a caso de éxito y programa de referidos.</p>",
+    "kpi_financiero": { "ranking": 1, "clasificacion_abc": "A", "es_vital": true },
+    "uso_plataforma": {
+      "alumnos_inscritos_admon_actuales": 720,
+      "admin_finanzas_pagos": 2110,
+      "admin_finanzas_facturas": 540,
+      "control_escolar_clases_contenidos_adicionales": 130,
+      "crm_prospectos_actuales": 86
+    },
+    "tickets": [
+      {
+        "id": "tk-6001",
+        "folio": "SAM-9460",
+        "titulo": "Duda sobre nuevo dashboard directivo",
+        "estatus": "Cerrado",
+        "prioridad": "Baja",
+        "tipo_incidencia": "Duda de uso",
+        "equipo_actual": "Customer Success",
+        "asignado_actual": "Carolina Méndez",
+        "fecha_registro": "2026-05-21T12:00:00",
+        "descripcion": "<p>El director quiere personalizar los widgets del nuevo dashboard.</p>",
+        "comentarios": "<p>Sesión de 20 minutos; quedó configurado.</p>",
+        "url": null
+      },
+      {
+        "id": "tk-6002",
+        "folio": "SAM-9112",
+        "titulo": "Solicitud: API para su sistema de biblioteca",
+        "estatus": "En revisión",
+        "prioridad": "Media",
+        "tipo_incidencia": "Solicitud de mejora",
+        "equipo_actual": "Desarrollo",
+        "asignado_actual": "Equipo Integraciones",
+        "fecha_registro": "2026-04-08T15:20:00",
+        "descripcion": "<p>Quieren consultar adeudos desde su sistema de biblioteca vía API.</p>",
+        "comentarios": "<p>Evaluando alcance; el cliente tiene equipo técnico propio.</p>",
+        "url": null
+      },
+      {
+        "id": "tk-6003",
+        "folio": "SAM-8740",
+        "titulo": "Error menor en orden de listados",
+        "estatus": "Solucionado",
+        "prioridad": "Baja",
+        "tipo_incidencia": "Error de plataforma",
+        "equipo_actual": "Mesa de Soporte N1",
+        "asignado_actual": "Sofía Reyna",
+        "fecha_registro": "2026-02-27T10:40:00",
+        "descripcion": "<p>El listado de grupos no respetaba el orden alfabético con números romanos.</p>",
+        "comentarios": "<p>Ajustado el comparador de ordenamiento.</p>",
+        "url": null
+      }
+    ],
+    "actividades": [
+      {
+        "id": "act-6101",
+        "fecha_inicio": "2026-05-26T10:00:00",
+        "tipo_nombre": "Auditoría de cuenta",
+        "responsable": "Patricia Salas",
+        "asunto": "Auditoría integral Magnum — mayo 2026",
+        "contenido": "<p>Resultados sobresalientes en todas las dimensiones. Ver detalle en el resultado Magnum adjunto al expediente.</p>"
+      },
+      {
+        "id": "act-6102",
+        "fecha_inicio": "2026-04-30T09:30:00",
+        "tipo_nombre": "Visita presencial",
+        "responsable": "Carolina Méndez",
+        "asunto": "Presentación de roadmap de producto al comité directivo",
+        "contenido": "<p>El comité mostró interés en el módulo de admisiones con IA. Posible <strong>upsell</strong> para el ciclo 2026-2027.</p>"
+      },
+      {
+        "id": "act-6103",
+        "fecha_inicio": "2026-03-10T11:00:00",
+        "tipo_nombre": "Llamada de seguimiento",
+        "responsable": "Carolina Méndez",
+        "asunto": "Seguimiento mensual de cuenta vital",
+        "contenido": "<p>Sin pendientes. Acordamos grabar testimonio para caso de éxito.</p>"
+      },
+      {
+        "id": "act-6104",
+        "fecha_inicio": "2026-01-20T10:00:00",
+        "tipo_nombre": "Llamada de seguimiento",
+        "responsable": "Carolina Méndez",
+        "asunto": "Inicio de conversación de renovación septiembre 2026",
+        "contenido": "<p>Disposición total a renovar; pidieron cotizar el módulo de transporte.</p>"
+      },
+      {
+        "id": "act-6105",
+        "fecha_inicio": "2025-08-18T09:00:00",
+        "tipo_nombre": "Sesión de capacitación",
+        "responsable": "Luis Ortega",
+        "asunto": "Onboarding de nuevos docentes (ciclo 2025-2026)",
+        "contenido": "<p>Capacitación a 22 docentes de nuevo ingreso.</p>"
+      }
+    ],
+    "llamadas": [
+      {
+        "id": "ll-6201",
+        "fecha_inicio": "2026-05-26T10:00:00",
+        "agente_nombre": "Patricia Salas",
+        "duracion_textual": "60 min",
+        "percepcion_cliente_estado": "Excelente",
+        "percepcion_cliente_texto": "Cuenta modelo; el director general agradeció la auditoría y aceptó participar como caso de éxito.",
+        "calificacion": 9.8,
+        "grabacion": null,
+        "resumen": "Cierre de auditoría Magnum con resultados sobresalientes."
+      },
+      {
+        "id": "ll-6202",
+        "fecha_inicio": "2026-03-10T11:00:00",
+        "agente_nombre": "Carolina Méndez",
+        "duracion_textual": "15 min",
+        "percepcion_cliente_estado": "Excelente",
+        "percepcion_cliente_texto": "Todo en orden; relación sólida con el equipo directivo.",
+        "calificacion": 9.5,
+        "grabacion": null,
+        "resumen": "Seguimiento mensual sin pendientes."
+      },
+      {
+        "id": "ll-6203",
+        "fecha_inicio": "2025-09-02T10:30:00",
+        "agente_nombre": "Luis Ortega",
+        "duracion_textual": "28 min",
+        "percepcion_cliente_estado": "Bueno",
+        "percepcion_cliente_texto": "Arranque de ciclo fluido; pequeñas dudas de los docentes nuevos ya resueltas.",
+        "calificacion": 8.6,
+        "grabacion": null,
+        "resumen": "Revisión post arranque de ciclo."
+      }
+    ]
+  }
+]

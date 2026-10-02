@@ -1,0 +1,17 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import PersonaDetailSection from '../../components/sections/PersonaDetailSection';
+
+// El param `id` puede ser:
+//  - un `equipo.id` directo (formato preferente desde HU NAV-78.2, e.g. `emontano`),
+//  - o un nombre/apodo legible (back-compat con bookmarks viejos: `Lore`,
+//    `Eduardo%20Monta%C3%B1o`).
+// PersonaDetailSection lo resuelve: prueba match directo por id, y si no
+// existe cae a `equipoMatch.resolveId` por nombre/apodo.
+const { id } = Astro.params;
+const decoded = decodeURIComponent(id || '');
+---
+
+<Layout title={decoded || 'Persona'}>
+  <PersonaDetailSection idOrName={decoded} client:load />
+</Layout>

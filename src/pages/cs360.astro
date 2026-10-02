@@ -1,0 +1,103 @@
+---
+// Página STANDALONE (a propósito no usa Layout.astro): el tablero CS 360 se
+// abre en su propia pestaña desde el sidebar y se presenta como una app
+// independiente con tema claro, aunque vive dentro del proyecto y hereda el
+// auth + permisos del middleware (`page:cs360`, admin-only por default).
+import '../styles/global.css';
+import '../styles/cs360-dark.css';
+import Cs360App from '../components/sections/cs360/Cs360App';
+---
+
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/png" href="/favicon-96x96.png?v=20260527" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=20260527" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <title>Neural Intelligence 360 | CS Health Score</title>
+    <!-- Tema: sigue la preferencia global de P-Nav (`project-navigator-theme`),
+         pero CS360 default = claro y NUNCA usa la clase `light` (en claro va sin
+         clase = look del mock). Pre-paint para evitar flash.
+         CSP: Astro NO auto-hashea scripts is:inline. El SHA-256 de este cuerpo está
+         fijado en astro.config.mjs (scriptDirective.hashes) y verificado por
+         tests/csp/inline-script-hashes.test.ts. Editar el cuerpo (incl. espaciado)
+         exige actualizar el hash o el guard test falla y el CSP lo bloquea en prod. -->
+    <script is:inline>
+      (function () {
+        if ((localStorage.getItem('project-navigator-theme') || 'light') === 'dark') {
+          document.documentElement.classList.add('dark');
+        }
+      })();
+    </script>
+    <style is:global>
+      /* Estilos del reporte de IA y del HTML enriquecido del back (réplica del mock). */
+      .ai-content { line-height: 1.6; color: #334155; }
+      .ai-content h3 {
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: #1e3a8a;
+        margin-top: 1.5rem;
+        margin-bottom: 0.75rem;
+        border-bottom: 2px solid #eff6ff;
+        padding-bottom: 0.5rem;
+      }
+      .ai-content h3:first-child { margin-top: 0; }
+      .ai-content p { margin-bottom: 1rem; }
+      .ai-content ul { padding-left: 0; margin-bottom: 1.25rem; list-style: none; }
+      .ai-content ul li { position: relative; padding-left: 1.5rem; margin-bottom: 0.5rem; color: #475569; }
+      .ai-content ul li::before { content: '✦'; position: absolute; left: 0; color: #6366f1; font-size: 1rem; top: 1px; }
+      .ai-content strong { color: #0f172a; font-weight: 600; }
+      .ai-content .text-red-600 {
+        color: #e11d48 !important;
+        font-weight: 700;
+        background-color: #ffe4e6;
+        padding: 0.15rem 0.4rem;
+        border-radius: 0.25rem;
+      }
+      .ai-content .text-green-600 {
+        color: #16a34a !important;
+        font-weight: 700;
+        background-color: #dcfce7;
+        padding: 0.15rem 0.4rem;
+        border-radius: 0.25rem;
+      }
+
+      .html-content p { margin-bottom: 0.5rem; }
+      .html-content a { color: #2563eb; text-decoration: underline; }
+      .html-content img { max-width: 100%; height: auto; border-radius: 4px; margin: 0.5rem 0; }
+      .html-content ul { list-style: disc; padding-left: 1.25rem; margin-bottom: 0.5rem; }
+
+      /* Scrollbar fino como el mock */
+      ::-webkit-scrollbar { width: 6px; height: 6px; }
+      ::-webkit-scrollbar-track { background: transparent; }
+      ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+      ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+      /* "Exportar PDF": la vista de impresión es un portal (.cs360-print-report)
+         montado como hijo directo de <body> por ResumenTab cuando hay reporte de
+         IA. En pantalla no existe visualmente; al imprimir se oculta la app
+         entera y fluye sólo el reporte (sin los recortes de los contenedores
+         con overflow del layout). El :has() evita dejar la impresión en blanco
+         si alguien imprime con Cmd+P sin reporte generado. */
+      .cs360-print-report { display: none; }
+      @media print {
+        @page { margin: 14mm; }
+        body:has(.cs360-print-report) > *:not(.cs360-print-report) { display: none !important; }
+        .cs360-print-report { display: block; }
+        .cs360-print-report .ai-content h3 { break-after: avoid; }
+        .cs360-print-report .ai-content li,
+        .cs360-print-report .ai-content p { break-inside: avoid; }
+        /* Conservar los resaltados rojo/verde del reporte en papel/PDF */
+        .ai-content .text-red-600,
+        .ai-content .text-green-600 {
+          print-color-adjust: exact;
+          -webkit-print-color-adjust: exact;
+        }
+      }
+    </style>
+  </head>
+  <body class="bg-slate-50 text-slate-800">
+    <Cs360App client:only="react" />
+  </body>
+</html>

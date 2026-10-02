@@ -1,0 +1,133 @@
+/* ============================================================================
+   CS360 — MODO OSCURO (scoped a la página)
+   ----------------------------------------------------------------------------
+   Importado SOLO por `src/pages/cs360.astro` → vive únicamente en el bundle de
+   /cs360 y no alcanza al resto de P-Nav. CS360 es light-first (clases claras
+   explícitas: bg-white, border-slate-200, text-slate-800, acentos -600/-700,
+   callouts bg-X-50). Aquí se remapean a oscuro cuando `<html>` tiene la clase
+   `dark` (CS360 nunca usa la clase `light`; en claro va sin clase = look del
+   mock). Capas: página slate-950 < sub-secciones slate-900 < tarjetas slate-800
+   < chips slate-700. Espejo inverso del fix de modo claro de la app principal.
+
+   IMPORTANTE — `@media screen`: el modo oscuro es SÓLO pantalla. Al imprimir /
+   exportar PDF (p.ej. el reporte "Neural AI Insights", portal `.cs360-print-report`
+   en ResumenTab), el papel es blanco y debe usar la paleta CLARA de CS360. Si
+   estos overrides aplicaran en print, el texto saldría claro sobre blanco = hoja
+   "en blanco". Envolviéndolos en `@media screen`, en print revierten a las clases
+   base claras automáticamente.
+   ============================================================================ */
+
+@media screen {
+
+/* --- Página / superficies -------------------------------------------------- */
+/* body es la capa más oscura; más específico que la regla .bg-slate-50 de abajo */
+html.dark body.bg-slate-50 { background-color: #020617; color: #e2e8f0; }
+
+html.dark .bg-white { background-color: #1e293b; }
+html.dark .bg-slate-50 { background-color: #0f172a; }
+html.dark .bg-slate-50\/80 { background-color: rgba(15, 23, 42, 0.8); }
+html.dark .bg-slate-50\/50 { background-color: rgba(15, 23, 42, 0.5); }
+html.dark .bg-blue-50\/50 { background-color: rgba(59, 130, 246, 0.08); }
+html.dark .bg-slate-100 { background-color: #334155; }
+html.dark .bg-slate-200 { background-color: #475569; }
+/* bg-slate-800/900 y gradientes (from-blue-600 to-indigo-900) ya son oscuros */
+
+/* Overlays blancos opacos (loading, headers sticky) → scrim oscuro, no flash
+   blanco. Los de baja opacidad (bg-white/20,/30) van sobre el header con
+   gradiente de color → se dejan como frost claro intencional. */
+html.dark .bg-white\/90 { background-color: rgba(15, 23, 42, 0.9); }
+html.dark .bg-white\/80 { background-color: rgba(2, 6, 23, 0.8); }
+html.dark .bg-white\/70 { background-color: rgba(15, 23, 42, 0.7); }
+
+/* Callouts tintados: bg-X-50/100 → tinte translúcido oscuro */
+html.dark .bg-red-50 { background-color: rgba(239, 68, 68, 0.12); }
+html.dark .bg-red-100 { background-color: rgba(239, 68, 68, 0.18); }
+html.dark .bg-emerald-50 { background-color: rgba(16, 185, 129, 0.12); }
+html.dark .bg-green-50 { background-color: rgba(34, 197, 94, 0.12); }
+html.dark .bg-blue-50 { background-color: rgba(59, 130, 246, 0.12); }
+html.dark .bg-indigo-50 { background-color: rgba(99, 102, 241, 0.12); }
+html.dark .bg-indigo-100 { background-color: rgba(99, 102, 241, 0.18); }
+html.dark .bg-amber-50 { background-color: rgba(245, 158, 11, 0.12); }
+html.dark .bg-amber-100 { background-color: rgba(245, 158, 11, 0.18); }
+html.dark .bg-purple-100 { background-color: rgba(168, 85, 247, 0.18); }
+
+/* --- Bordes ---------------------------------------------------------------- */
+html.dark .border-slate-200 { border-color: #334155; }
+html.dark .border-slate-100 { border-color: #1e293b; }
+html.dark .border-slate-300 { border-color: #475569; }
+html.dark .divide-slate-100 > * + * { border-color: rgba(51, 65, 85, 0.6); }
+
+html.dark .border-red-200 { border-color: rgba(239, 68, 68, 0.35); }
+html.dark .border-emerald-200 { border-color: rgba(16, 185, 129, 0.35); }
+html.dark .border-green-200 { border-color: rgba(34, 197, 94, 0.35); }
+html.dark .border-blue-200 { border-color: rgba(59, 130, 246, 0.35); }
+html.dark .border-indigo-200 { border-color: rgba(99, 102, 241, 0.35); }
+html.dark .border-indigo-100 { border-color: rgba(99, 102, 241, 0.25); }
+html.dark .border-amber-200 { border-color: rgba(245, 158, 11, 0.35); }
+html.dark .border-purple-200 { border-color: rgba(168, 85, 247, 0.35); }
+
+/* --- Texto slate ----------------------------------------------------------- */
+html.dark .text-slate-900 { color: #f8fafc; }
+html.dark .text-slate-800 { color: #f1f5f9; }
+html.dark .text-slate-700 { color: #e2e8f0; }
+html.dark .text-slate-600 { color: #cbd5e1; }
+html.dark .text-slate-500 { color: #94a3b8; }
+html.dark .text-slate-400 { color: #94a3b8; }
+/* text-slate-300 ya es claro → sin cambios */
+
+/* --- Acentos de color (CS360 usa -600/-700/-800) → -400 brillante ---------- */
+html.dark .text-blue-800,
+html.dark .text-blue-700,
+html.dark .text-blue-600,
+html.dark .text-blue-500 { color: #60a5fa; }
+html.dark .text-red-700,
+html.dark .text-red-600 { color: #f87171; }
+html.dark .text-emerald-800,
+html.dark .text-emerald-700,
+html.dark .text-emerald-600 { color: #34d399; }
+html.dark .text-green-700 { color: #4ade80; }
+html.dark .text-indigo-800,
+html.dark .text-indigo-700,
+html.dark .text-indigo-600,
+html.dark .text-indigo-500 { color: #818cf8; }
+html.dark .text-purple-700,
+html.dark .text-purple-500 { color: #c084fc; }
+html.dark .text-amber-700,
+html.dark .text-amber-600 { color: #fbbf24; }
+html.dark .text-orange-500 { color: #fb923c; }
+/* text-red-400 / text-indigo-300 ya son brillantes; text-white se deja (va
+   sobre acentos sólidos / header con gradiente) */
+
+/* --- Hovers / focus -------------------------------------------------------- */
+html.dark .hover\:bg-slate-50:hover { background-color: rgba(51, 65, 85, 0.5); }
+html.dark .hover\:bg-slate-100:hover { background-color: #334155; }
+html.dark .hover\:bg-slate-200:hover { background-color: #475569; }
+html.dark .hover\:bg-indigo-50:hover { background-color: rgba(99, 102, 241, 0.15); }
+html.dark .hover\:bg-red-50:hover { background-color: rgba(239, 68, 68, 0.15); }
+html.dark .hover\:text-blue-600:hover { color: #60a5fa; }
+html.dark .hover\:text-red-600:hover { color: #f87171; }
+html.dark .hover\:text-slate-700:hover { color: #e2e8f0; }
+html.dark .hover\:border-slate-200:hover { border-color: #334155; }
+/* ring-* de focus, botones sólidos (bg-indigo-600/700, bg-blue-600) → sin cambios */
+
+/* --- Rich text del back / reporte IA (reglas inline en cs360.astro) --------- */
+html.dark .ai-content { color: #cbd5e1; }
+html.dark .ai-content h3 { color: #93c5fd; border-bottom-color: #1e293b; }
+html.dark .ai-content ul li { color: #cbd5e1; }
+html.dark .ai-content ul li::before { color: #818cf8; }
+html.dark .ai-content strong { color: #f1f5f9; }
+html.dark .ai-content .text-red-600 {
+  color: #fb7185 !important;
+  background-color: rgba(244, 63, 94, 0.18);
+}
+html.dark .ai-content .text-green-600 {
+  color: #4ade80 !important;
+  background-color: rgba(34, 197, 94, 0.18);
+}
+html.dark .html-content a { color: #60a5fa; }
+
+/* --- Scrollbar ------------------------------------------------------------- */
+html.dark ::-webkit-scrollbar-thumb { background: #475569; }
+html.dark ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+
+} /* @media screen */

@@ -1,0 +1,71 @@
+---
+import '../styles/global.css'
+import Sidebar from '../components/layout/Sidebar';
+import { getEffectivePermissions } from '../lib/permissions';
+
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+const currentPath = Astro.url.pathname;
+const user = Astro.locals.user
+  ? {
+      name: Astro.locals.user.name,
+      email: Astro.locals.user.email,
+      image: Astro.locals.user.image ?? null,
+    }
+  : null;
+
+const perms = await getEffectivePermissions(Astro.locals.user);
+// Escape para inyección segura en <script> (defensa en profundidad):
+// JSON.stringify no escapa </script> ni U+2028/U+2029.
+const permsJson = JSON.stringify(perms)
+  .replace(/</g, "\\u003c")
+  .replace(/\u2028/g, "\\u2028")
+  .replace(/\u2029/g, "\\u2029");
+---
+
+<html lang="es" class="dark">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/png" href="/favicon-96x96.png?v=20260527" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=20260527" />
+    <link rel="shortcut icon" href="/favicon.ico?v=20260527" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=20260527" />
+    <meta name="apple-mobile-web-app-title" content="P-Nav" />
+    <link rel="manifest" href="/site.webmanifest?v=20260527" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title} | Project Navigator</title>
+    <!-- CSP: Astro NO auto-hashea scripts is:inline. El SHA-256 de este cuerpo está
+         fijado a mano en astro.config.mjs (scriptDirective.hashes) y verificado por
+         tests/csp/inline-script-hashes.test.ts. Si editas el cuerpo (incluido el
+         espaciado) actualiza el hash o el guard test falla y el CSP lo bloquea en prod. -->
+    <script is:inline>
+      (function() {
+        var theme = localStorage.getItem('project-navigator-theme') || 'dark';
+        document.documentElement.className = theme;
+        if (localStorage.getItem('pn-sidebar-collapsed') === '1') {
+          document.documentElement.classList.add('sidebar-collapsed');
+        }
+      })();
+    </script>
+    <!-- Perms data island: inert JSON (not executable, CSP script-src does not govern it).
+         El XSS-escaping de permsJson (lines above) sigue aplicando: previene que un valor
+         malicioso cierre el tag JSON y abra un script ejecutable. -->
+    <script is:inline type="application/json" id="pn-perms" set:html={permsJson}></script>
+    <!-- Static reader: lee el data island síncrono en <head> antes de que los islands
+         hidraten, preservando el mismo timing que antes. Igual que el script de arriba,
+         su SHA-256 está fijado en astro.config.mjs y verificado por el guard test. -->
+    <script is:inline>
+      window.__PN_PERMS__ = JSON.parse(document.getElementById('pn-perms').textContent || '{}');
+    </script>
+  </head>
+  <body class="bg-slate-950 text-slate-200 min-h-screen">
+    <Sidebar currentPath={currentPath} user={user} allowedPages={perms.pages} client:load />
+    <main class="md:ml-56 [html.sidebar-collapsed_&]:md:ml-16 transition-[margin-left] duration-200 p-3 sm:p-6 pb-24 md:pb-6 min-h-screen print:ml-0 print:p-4">
+      <slot />
+    </main>
+  </body>
+</html>

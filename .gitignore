@@ -1,0 +1,46 @@
+# build output
+dist/
+# generated types
+.astro/
+
+# dependencies
+node_modules/
+.agents/
+
+# Google OAuth client secrets (any filename pattern)
+client_secret_*.json
+
+# Local databases — never commit binary DB blobs
+*.db
+*.sqlite
+*.sqlite3
+*.db-journal
+*.sqlite-journal
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+firebase-debug.log*
+
+
+# environment variables
+.env
+.env.production
+# erDiagram
+
+# macOS-specific files
+.DS_Store
+
+# jetbrains setting folder
+.idea/
+
+# AWS Amplify build output
+.amplify-hosting
+
+# CS 360 — export real de contratos de Samva (44MB, datos de clientes + el
+# script trae credenciales de SQL Server). NUNCA commitearlos; el tablero los
+# lee de disco en local y en prod cae al mock curado de src/data/.
+mocks/healt-score/contratos_exportados.json
+mocks/healt-score/ExportarContratos.txt

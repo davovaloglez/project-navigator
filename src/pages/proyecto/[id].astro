@@ -1,0 +1,10 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import ProyectoDetailSection from '../../components/sections/ProyectoDetailSection';
+
+const { id } = Astro.params;
+---
+
+<Layout title={`Proyecto ${id ?? ''}`}>
+  <ProyectoDetailSection id={id!} client:load />
+</Layout>
