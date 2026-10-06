@@ -12,7 +12,7 @@
  *    export desde el bucket (key en `CS360_S3_KEY`, default
  *    `cs360/contratos_exportados.json.gz`). El objeto se sube gzippeado con
  *    `npm run cs360:upload` (~44MB → ~4MB); se gunzipea aquí. Credenciales AWS
- *    vía la cadena por defecto del SDK (rol de ejecución en Amplify), igual
+ *    vía la cadena por defecto del SDK (env vars en Vercel), igual
  *    que los avatares.
  * 3. **Archivo local** — ruta en env `CS360_DATA_FILE`, o el default
  *    `mocks/healt-score/contratos_exportados.json` (gitignored: contiene

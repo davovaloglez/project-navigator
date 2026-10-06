@@ -36,8 +36,11 @@ firebase-debug.log*
 # jetbrains setting folder
 .idea/
 
-# AWS Amplify build output
-.amplify-hosting
+# Vercel build output
+.vercel
+
+# AWS Amplify build output (legacy)
+.amplify-hosting/
 
 # CS 360 — export real de contratos de Samva (44MB, datos de clientes + el
 # script trae credenciales de SQL Server). NUNCA commitearlos; el tablero los

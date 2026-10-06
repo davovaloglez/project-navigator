@@ -2,8 +2,7 @@ import { sheets as sheetsApi } from '@googleapis/sheets';
 import { GoogleAuth } from 'google-auth-library';
 
 // Lee env vars de runtime de forma portable: `import.meta.env` (Vite/build) con
-// fallback a `process.env`. En AWS Amplify las env vars de runtime llegan por
-// `process.env`, así que el fallback es obligatorio para no leer `undefined`.
+// fallback a `process.env`.
 function envVar(name: string): string | undefined {
   const viteEnv = (import.meta as { env?: Record<string, string | undefined> }).env;
   return viteEnv?.[name] ?? process.env[name];

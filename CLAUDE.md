@@ -4,13 +4,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Project Navigator — BIT Technologies: Dashboard de gestion de portafolio de proyectos y seguimiento de cursos del equipo. Construido con Astro 6 + React 19 + Tailwind CSS v4, desplegado en AWS Amplify.
+Project Navigator — BIT Technologies: Dashboard de gestion de portafolio de proyectos y seguimiento de cursos del equipo. Construido con Astro 6 + React 19 + Tailwind CSS v4, desplegado en Vercel.
 
 ## Commands
 
 ```bash
 npm run dev        # Servidor de desarrollo (localhost:4321)
-npm run build      # Build de produccion (genera .amplify-hosting/)
+npm run build      # Build de produccion (genera .vercel/output/)
 npm run preview    # Vista previa del build
 npx astro check    # Validacion de tipos (TypeScript strict)
 npm test           # Corre la suite de pruebas (Vitest, una sola pasada)
@@ -32,7 +32,7 @@ Pruebas con **Vitest** (`vitest.config.ts`, environment `node`).
 
 ## Architecture
 
-- **Framework:** Astro 6 con output `server` y adapter `astro-aws-amplify`
+- **Framework:** Astro 6 con output `server` y adapter `@astrojs/vercel`
 - **UI:** React 19 islands (`client:load`) + Tailwind CSS v4 (via `@tailwindcss/vite` plugin)
 - **Charts:** Recharts
 - **Icons:** Lucide React
@@ -129,7 +129,7 @@ Para resolver un nombre/apodo en cliente: `fetch('/api/equipo')` → `resolveId(
 | `GET /api/repositorios` | `repositorios!A1:K60` | Repositorios con roles de acceso GitHub por persona en `RepoRecord[]` (administrador/arquitecto/colaborador/visualizador/deploy, cada uno con nombres display concatenados). Role-open a cualquier autenticado, cache 5 min. Gateado en middleware por `page:equipo` (sólo lo consume el tab Accesos de `/persona/[id]`). El match por persona se hace en cliente |
 | `GET /api/snapshots` | `Snapshots!A2:E10000` | Lee histórico de snapshots semanales desde el Sheet (requiere tab `Snapshots` con columnas: weekKey, capturedAt, kind, identifier, payload JSON). Retorna `WeeklySnapshot[]` agrupados por weekKey |
 | `POST /api/snapshots` | `Snapshots!A1:E1` | Escribe un `WeeklySnapshot` al Sheet. Upsert por `weekKey` (limpia filas existentes de esa semana antes de insertar). Crea la tab automáticamente si no existe. Requiere permiso Editor del service account |
-| `GET /api/snapshots/auto-capture` | Projects + Cursos + Snapshots | Endpoint server-side para cron semanal (lunes 09:00 UTC). Requiere un scheduler externo que lo invoque (AWS EventBridge Scheduler; pendiente de configurar post-migración a Amplify). Lee Projects y Cursos del Sheet, construye snapshot de la semana actual y lo upserta. Autenticación opcional vía env `CRON_SECRET` (el scheduler debe mandar `Authorization: Bearer <CRON_SECRET>`) |
+| `GET /api/snapshots/auto-capture` | Projects + Cursos + Snapshots | Endpoint server-side para cron semanal (lunes 09:00 UTC). Configurado como Vercel Cron en `vercel.json`. Lee Projects y Cursos del Sheet, construye snapshot de la semana actual y lo upserta. Autenticación opcional vía env `CRON_SECRET` (Vercel Cron envía `Authorization: Bearer <CRON_SECRET>` automáticamente) |
 | `GET/PUT/DELETE /api/user-preferences` | Turso (`user_preferences`) | Persistencia per-user de filtros/toggles por sección (server-side, cross-device). GET retorna `{ [sectionKey]: value }` con todas las prefs del usuario. PUT body `{ sectionKey, value }` upsert por `(userId, sectionKey)`. DELETE con `?section=<key>` borra una; sin query borra todas (usado por "Limpiar todos" en `/cuenta`). Scope per-user via `Astro.locals.user.id`. Validación: `sectionKey` matchea `/^[a-z0-9-]{1,64}$/`, `value` debe ser objeto plano, body cap 10KB |
 | `POST/DELETE /api/me/avatar` | Amazon S3 + Turso (read) | Foto del usuario autenticado. POST: multipart `file` → valida firma binaria (PNG/JPG/WebP) + tamaño (máx 2MB), borra el objeto anterior si vivía en S3, sube el nuevo y retorna `{ url }`. DELETE: borra el objeto actual. El cliente persiste `user.image` vía `authClient.updateUser({ image })`. No escribe la tabla `user`. Helper compartido en [src/lib/avatarBlob.ts](src/lib/avatarBlob.ts) |
 | `POST/DELETE /api/admin/avatar` | Amazon S3 + Turso (read) | Igual que `/api/me/avatar` pero para otro usuario (`userId` en el FormData / query). Gateado por `action:user:manage` (middleware + `can()` defensivo). El cliente persiste vía `authClient.admin.updateUser({ userId, data: { image } })` |
@@ -163,8 +163,8 @@ Los endpoints de Sheets en modo lectura cachean 5 min. Los endpoints de `snapsho
 | `GOOGLE_OAUTH_CLIENT_ID` | OAuth client ID de Google Cloud Console |
 | `GOOGLE_OAUTH_CLIENT_SECRET` | OAuth client secret |
 | `ALLOWED_GOOGLE_DOMAIN` | Opcional. Si está set, restringe creación de usuarios al dominio (e.g. `bit.lat`) |
-| `CRON_SECRET` | Bearer token que el scheduler externo (AWS EventBridge Scheduler) debe mandar para bypass del auth en `/api/snapshots/auto-capture` |
-| `AVATAR_S3_BUCKET` | Bucket S3 para fotos de perfil. Requerido para subir/borrar avatares. Credenciales AWS vía la cadena por defecto del SDK (rol de ejecución en Amplify; `AWS_ACCESS_KEY_ID`/`AWS_SECRET_ACCESS_KEY` en local) |
+| `CRON_SECRET` | Bearer token que Vercel Cron envía automáticamente para bypass del auth en `/api/snapshots/auto-capture` |
+| `AVATAR_S3_BUCKET` | Bucket S3 para fotos de perfil. Requerido para subir/borrar avatares. Credenciales AWS vía la cadena por defecto del SDK (env vars en Vercel; `AWS_ACCESS_KEY_ID`/`AWS_SECRET_ACCESS_KEY` en local) |
 | `AWS_REGION` | Opcional. Región del bucket de avatares (default `us-east-1`) |
 | `AVATAR_CDN_URL` | Opcional. Dominio CDN (CloudFront) frente al bucket. Si se omite, se usa la URL pública directa del bucket |
 | `AI_BEARER_TOKEN` | Bearer token del servicio de IA Nexus (`ai.bit.lat`) para los insights del tablero CS 360 (NAV-85). Si falta, `POST /api/cs360/analyze` responde 503 y el tablero funciona sin IA. El prompt y el modelo se administran en el panel de Nexus (no hay env de modelo) |

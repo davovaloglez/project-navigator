@@ -1,7 +1,7 @@
 /**
  * Redimensiona una imagen en el cliente (canvas, sin dependencias) antes de
  * subirla. Mantiene los avatares en ~50-150KB y evita el límite de body del
- * runtime serverless (Lambda de Amplify). Devuelve un Blob JPEG (los avatares se recortan en círculo
+ * runtime serverless. Devuelve un Blob JPEG (los avatares se recortan en círculo
  * vía CSS, así que aplanar transparencia a blanco no se nota).
  */
 export async function resizeImageFile(

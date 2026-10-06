@@ -7,8 +7,8 @@ import { serverErrorResponse } from '../../../lib/apiError';
 export const prerender = false;
 
 /**
- * Cron de captura semanal de snapshots. Pensado para un scheduler externo
- * (AWS EventBridge Scheduler que invoque esta URL semanalmente):
+ * Cron de captura semanal de snapshots. Configurado como Vercel Cron en
+ * `vercel.json` (lunes 09:00 UTC):
  *   - Lee Projects y Cursos del Sheet (fuente de verdad de la operación).
  *   - Upserta el snapshot de la semana actual en Turso (tabla `snapshot`).
  *
@@ -16,8 +16,7 @@ export const prerender = false;
  *   `Authorization: Bearer <CRON_SECRET>` (el scheduler debe enviar ese header).
  */
 
-// Env var portable: `import.meta.env` con fallback a `process.env`. En AWS
-// Amplify las env vars de runtime llegan por `process.env`.
+// Env var portable: `import.meta.env` con fallback a `process.env`.
 function envVar(name: string): string | undefined {
   const viteEnv = (import.meta as { env?: Record<string, string | undefined> }).env;
   return viteEnv?.[name] ?? process.env[name];

@@ -24,7 +24,7 @@
 ┌─────────────────────────────────────────────────────────────────┐
 │                  AWS Amplify (SSR + Lambda)                     │
 │  ┌────────────────┐    ┌─────────────────────────────────────┐  │
-│  │  Páginas .astro │───▶│ React islands (sections + charts)  │  │
+│  │  Páginas .astro│───▶│ React islands (sections + charts)  │  │
 │  └────────────────┘    └─────────────────────────────────────┘  │
 │         │                              │                        │
 │         ▼                              ▼                        │
@@ -44,8 +44,8 @@
    │ user/session/  │            │ (service account)  │
    │ account/prefs  │            │  Projects / Cursos │
    └────────────────┘            │  proyectos / cursos│
-   │ snapshot        │            │  Costos / activid. │
-   │ equipo / prefs  │            │  sprint / capacid. │
+   │ snapshot       │            │  Costos / activid. │
+   │ equipo / prefs │            │  sprint / capacid. │
    └────────────────┘            └────────────────────┘
 ```
 
@@ -135,13 +135,20 @@ Tailwind v4 usa el plugin Vite (no `tailwind.config.js`). Las clases dinámicas 
 
 ## Cron semanal
 
-El cron lo dispara un **scheduler externo** (AWS EventBridge Scheduler — pendiente de configurar post-migración a Amplify). El `vercel.json` que lo declaraba fue eliminado; el endpoint sigue vivo, sólo necesita quién lo invoque:
+El cron lo dispara **Vercel Cron**, configurado en [`vercel.json`](../../../vercel.json):
 
+```json
+{
+  "crons": [
+    {
+      "path": "/api/snapshots/auto-capture",
+      "schedule": "0 9 * * 1"
+    }
+  ]
+}
 ```
-schedule: cron(0 9 ? * MON *)            # lunes 09:00 UTC
-target:   GET https://<app>/api/snapshots/auto-capture
-header:   Authorization: Bearer <CRON_SECRET>
-```
+
+Vercel envía automáticamente `Authorization: Bearer <CRON_SECRET>` si la env var está configurada.
 
 Cada lunes 9am UTC, el scheduler invoca `GET /api/snapshots/auto-capture`. El endpoint:
 

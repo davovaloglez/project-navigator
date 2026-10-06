@@ -2,13 +2,13 @@
 
 Dashboard de gestion de portafolio de proyectos y seguimiento de cursos del equipo.
 
-Construido con **Astro 6** + **React 19** + **Tailwind CSS v4** + **Recharts** + **Google Sheets API**, desplegado en **AWS Amplify**.
+Construido con **Astro 6** + **React 19** + **Tailwind CSS v4** + **Recharts** + **Google Sheets API**, desplegado en **Vercel**.
 
 ## Requisitos
 
 - Node.js >= 24.0.0
 - Cuenta de servicio de Google con acceso al Spreadsheet
-- AWS Amplify (para deploy)
+- Vercel (para deploy)
 
 ## Instalacion
 
@@ -75,13 +75,13 @@ Ver **`CLAUDE.md` → sección "API Endpoints"** para la tabla completa y actual
 
 ## Deploy
 
-El proyecto esta configurado para AWS Amplify con el adapter `astro-aws-amplify` y output `server`.
+El proyecto esta configurado para Vercel con el adapter `@astrojs/vercel` y output `server`.
 
 ```bash
-npm run build    # Genera dist/ (.amplify-hosting/ via adapter)
+npm run build    # Genera dist/ (.vercel/output/ via adapter)
 ```
 
-Las variables de entorno deben configurarse en el panel de AWS Amplify.
+Las variables de entorno deben configurarse en el panel de Vercel (Settings → Environment Variables).
 
 ## Licencia
 

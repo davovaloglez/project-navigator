@@ -34,7 +34,7 @@
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "astro": "^6.2.2",
-    "astro-aws-amplify": "^0.4.1",
+    "@astrojs/vercel": "^10.0.8",
     "better-auth": "^1.6.11",
     "dompurify": "^3.4.11",
     "google-auth-library": "^10.7.0",

@@ -36,7 +36,7 @@ export function ulid(): string {
   return ts + r;
 }
 
-// Env var portable (Amplify entrega runtime env por process.env).
+// Env var portable: `import.meta.env` con fallback a `process.env`.
 export function nexusBearerToken(): string | undefined {
   const viteEnv = (import.meta as { env?: Record<string, string | undefined> }).env;
   return viteEnv?.AI_BEARER_TOKEN ?? process.env.AI_BEARER_TOKEN;

@@ -7,8 +7,7 @@ import { extractBearer, isMcpBearer, resolveMcpToken } from './lib/mcpToken';
 const PUBLIC_PAGE_ROUTES = new Set<string>(['/login']);
 const CRON_ROUTE = '/api/snapshots/auto-capture';
 
-// Env var portable: `import.meta.env` con fallback a `process.env`. En AWS
-// Amplify las env vars de runtime llegan por `process.env`.
+// Env var portable: `import.meta.env` con fallback a `process.env`.
 function envVar(name: string): string | undefined {
   const viteEnv = (import.meta as { env?: Record<string, string | undefined> }).env;
   return viteEnv?.[name] ?? process.env[name];

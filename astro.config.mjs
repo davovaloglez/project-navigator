@@ -5,14 +5,14 @@ import react from "@astrojs/react";
 
 import tailwindcss from "@tailwindcss/vite";
 
-import awsAmplify from "astro-aws-amplify";
+import vercel from "@astrojs/vercel";
 
 import tsconfigPaths from "vite-tsconfig-paths";
 
 // https://astro.build/config
 export default defineConfig({
   output: "server",
-  adapter: awsAmplify(),
+  adapter: vercel(),
   integrations: [react()],
   // CSP (security.csp, stable since astro@6.0.0). Astro emits the policy and
   // computes SHA-256 hashes for the scripts/styles it PROCESSES: bundled JS
@@ -89,14 +89,5 @@ export default defineConfig({
       process.env.NODE_ENV === "production"
         ? { sourcemap: false }
         : undefined,
-    ssr: {
-      noExternal: process.env.NODE_ENV === "production" ? true : undefined,
-    },
-    resolve: {
-      alias:
-        process.env.NODE_ENV === "production"
-          ? [{ find: /^@libsql\/client$/, replacement: "@libsql/client/web" }]
-          : [],
-    },
   },
 });
