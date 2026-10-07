@@ -21,12 +21,12 @@ Sin query params ni body.
 ```json
 [
   {
-    "colaborador": "Lorena Raquel Olvera Rodriguez",
-    "emailColaborador": "lorena@bit.lat",
+    "colaborador": "Lorenso Raquel Olmos Valdez",
+    "emailColaborador": "lorenso@vortex-it.com",
     "ou": "Tech",
     "rol": "PM",
     "jefeDirecto": "Edgar Torres",
-    "emailJefe": "edgar@bit.lat",
+    "emailJefe": "edgar@vortex-it.com",
     "pidsCreados": 0,
     "progreso": 80,
     "equipoId": "lolvera",

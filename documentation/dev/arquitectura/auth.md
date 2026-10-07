@@ -380,10 +380,10 @@ export const auth = betterAuth({
 ### Vía script (CLI)
 
 ```bash
-npm run create-user me@bit.lat 'P@ssw0rd' 'Mi Nombre' [rol]
+npm run create-user me@vortex-it.com 'P@ssw0rd' 'Mi Nombre' [rol]
 # Roles válidos: admin, directores, gerentes, pm, dev, ventas
 # Ejemplo con rol:
-npm run create-user me@bit.lat 'P@ssw0rd' 'Mi Nombre' pm
+npm run create-user me@vortex-it.com 'P@ssw0rd' 'Mi Nombre' pm
 ```
 
 [scripts/createUser.ts](../../../scripts/createUser.ts) usa la **API server-side** de Better-Auth, que ignora `disableSignUp`. El `[rol]` es el cuarto argumento opcional; si el último token coincide con un nombre de rol válido se toma como rol, si no, como parte del nombre. Sólo personas con acceso al deployment (env vars + comando) pueden crear users por esta vía.

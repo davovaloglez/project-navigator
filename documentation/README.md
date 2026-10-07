@@ -1,6 +1,6 @@
 # Documentación — Project Navigator
 
-Este directorio centraliza toda la documentación de **Project Navigator**, el tablero interno de gestión de portafolio de BIT Technologies.
+Este directorio centraliza toda la documentación de **Project Navigator**, el tablero interno de gestión de portafolio de Vortex IT.
 
 La documentación está dividida por audiencia:
 

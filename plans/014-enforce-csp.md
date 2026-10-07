@@ -171,7 +171,7 @@ cannot tag the framework's hydration scripts and will break hydration in product
 - The DOMPurify sanitization from 007 (already shipped — don't re-touch the sinks).
 - Adding a CSP violation **reporting endpoint** (`report-uri`/`report-to`) — nice-to-have, separate
   follow-up. Don't build it here.
-- `connect-src` allowances for the Nexus AI host (`ai.bit.lat`) — the browser doesn't call Nexus
+- `connect-src` allowances for the Nexus AI host (`ai.vortex-it.com`) — the browser doesn't call Nexus
   directly (it goes through `/api/cs360/analyze`, same-origin). Don't add it unless a violation proves
   otherwise.
 

@@ -84,7 +84,7 @@ Dos sistemas externos:
    - Tabla `user_permission_override` (manual) — overrides de permiso por usuario (`userId`, `resource`, `effect`).
    - Tabla `equipo` + `roles` + `equipo_rates` — registro canónico del equipo de BIT.
    - Tabla `snapshot` — histórico semanal de snapshots (PK: `weekKey, kind, identifier`). Desde mayo 2026 reemplaza la escritura en la tab `Snapshots` del Sheet.
-   - Tabla `nexus_request` (manual) — registro de peticiones al servicio de IA Nexus (`ai.bit.lat`, NAV-85). PK: `ulid`. Persiste `webhook_url`, `status` (`pending`/`completed`/`failed`), `response_data` (JSON cache permanente), `cost` y `model`. FK opcional a `user.id` (`ON DELETE SET NULL`). Ver migración en [src/db/migrations/2026-nexus-requests.sql](../../../src/db/migrations/2026-nexus-requests.sql).
+   - Tabla `nexus_request` (manual) — registro de peticiones al servicio de IA Nexus (`ai.vortex-it.com`, NAV-85). PK: `ulid`. Persiste `webhook_url`, `status` (`pending`/`completed`/`failed`), `response_data` (JSON cache permanente), `cost` y `model`. FK opcional a `user.id` (`ON DELETE SET NULL`). Ver migración en [src/db/migrations/2026-nexus-requests.sql](../../../src/db/migrations/2026-nexus-requests.sql).
 
 **El tablero nunca escribe en `proyectos`, `cursos`, `Costos`, `actividades`, `sprint`, `capacidades`.** Escribe en `snapshot` (Turso) vía `POST /api/snapshots` y el cron semanal.
 
@@ -177,7 +177,7 @@ Listadas en [CLAUDE.md](../../../CLAUDE.md) sección "Environment Variables". Re
 | `R2_BUCKET_NAME` / `AVATAR_S3_BUCKET` | Bucket en Cloudflare R2 o AWS S3 para avatares de perfil |
 | `R2_PUBLIC_URL` / `AVATAR_CDN_URL` | URL pública directa (ej. `https://pub-...r2.dev`) o dominio personalizado CDN |
 | `AWS_REGION` | Opcional. Región del bucket (`auto` para Cloudflare R2; default `us-east-1` en AWS) |
-| `AI_BEARER_TOKEN` | Bearer token server-side para `POST /api/cs360/analyze`. Si falta, ese endpoint responde 503 y el tablero CS 360 funciona sin IA (el botón "Generar" muestra un mensaje amigable). El prompt completo y el modelo se administran en el panel de Nexus (`ai.bit.lat`), no aquí |
+| `AI_BEARER_TOKEN` | Bearer token server-side para `POST /api/cs360/analyze`. Si falta, ese endpoint responde 503 y el tablero CS 360 funciona sin IA (el botón "Generar" muestra un mensaje amigable). El prompt completo y el modelo se administran en el panel de Nexus (`ai.vortex-it.com`), no aquí |
 | `CS360_DATA_URL` | URL pública del export del tablero CS 360 publicado por Samva (`static.samva.io`; el path trae un GUID que puede cambiar al regenerarse el export — por eso es env var). **Fuente de producción preferida**; si falla o falta, se prueba el S3 propio |
 | `CS360_S3_BUCKET` | Bucket S3 privado con el export real del tablero CS 360 (fallback de producción). Se sube con `npm run cs360:upload`. Si falta, se prueba el archivo local y luego el mock curado |
 | `CS360_S3_KEY` | Opcional. Key del objeto del export en S3 (default `cs360/contratos_exportados.json.gz`) |

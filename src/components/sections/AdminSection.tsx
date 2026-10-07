@@ -111,7 +111,7 @@ function CreateUserBlock({ onCreated }: { onCreated: () => void }) {
       <form onSubmit={onSubmit} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
         <input
           type="email"
-          placeholder="email@bit.lat"
+          placeholder="email@vortex-it.com"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-blue-500"

@@ -27,9 +27,9 @@ Content-Type: application/json
 Cookie: better-auth.session_token=<token>
 
 {
-  "full_name": "Lorena Raquel Olvera Rodriguez",
+  "full_name": "Lorena Raquel Olivo Iñiguez",
   "nickname": "Lore",
-  "email": "lorena@bit.lat",
+  "email": "lorena@vortex-it.com",
   "title": "Project Manager",
   "role_id": "project-manager",
   "department": "Tech",
@@ -55,7 +55,7 @@ Cookie: better-auth.session_token=<token>
 { "ok": true, "id": "lolvera" }
 ```
 
-El `id` se deriva del local-part del email (`lorena` → `lolvera` si email = `lorena@bit.lat`) o del slug del nombre si no hay email. Si el id ya existe, se agrega un sufijo numérico (`lolvera-2`, etc.).
+El `id` se deriva del local-part del email (`lorena` → `lolvera` si email = `lorena@vortex-it.com`) o del slug del nombre si no hay email. Si el id ya existe, se agrega un sufijo numérico (`lolvera-2`, etc.).
 
 ## PUT — Editar miembro
 
@@ -70,7 +70,7 @@ Cookie: better-auth.session_token=<token>
   "id": "lolvera",
   "full_name": "Lorena Raquel Olvera Rodriguez",
   "nickname": "Lore",
-  "email": "lorena@bit.lat",
+  "email": "lorena@vortex-it.com",
   "title": "Senior Project Manager",
   "role_id": "project-manager-officer",
   "department": "Tech",

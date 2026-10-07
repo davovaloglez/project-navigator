@@ -6,7 +6,7 @@ async function main() {
 
   if (!email || !password || !name) {
     console.error('Usage: npm run create-user <email> <password> <name> [role]');
-    console.error("Example: npm run create-user me@bit.lat 'P@ssw0rd' 'Mi Nombre' admin");
+    console.error("Example: npm run create-user me@vortex-it.com 'P@ssw0rd' 'Mi Nombre' admin");
     console.error('Roles válidos:', ROLE_NAMES.join(', '), `(default: ${DEFAULT_ROLE})`);
     process.exit(1);
   }

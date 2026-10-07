@@ -129,7 +129,7 @@ erDiagram
     %% ===================== [SHEETS] ====================
     CLIENTS {
         string id PK
-        string name UK "Normaliza 'BIT' vs 'Bit Technologies'"
+        string name UK "Normaliza 'vortex-it' vs 'Vortex IT'"
         string cuenta "Agrupador comercial (opcional)"
     }
     PROJECTS {

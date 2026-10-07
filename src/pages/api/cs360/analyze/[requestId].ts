@@ -8,7 +8,7 @@ import { ULID_REGEX, pollNexusWebhook } from '../../../../lib/nexus';
  * `status: 'completed'`.
  *
  * - Si la fila en Turso ya está `completed`, responde desde la BD sin tocar
- *   ai.bit.lat (cache permanente).
+ *   ai.vortex-it.com (cache permanente).
  * - Si está `pending`, consulta la webhook URL firmada; cuando hay respuesta
  *   la valida contra el shape esperado, persiste resultado + costo + modelo
  *   y responde `completed`.

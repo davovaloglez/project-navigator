@@ -14,8 +14,8 @@ y es clave no confundirlos porque tienen naturalezas de costo opuestas:
 
 | Flujo                     | Qué hace                                                                      | ¿Costo de IA para BIT?                                                           | ¿Se mide hoy?                             |
 | ------------------------- | ------------------------------------------------------------------------------ | --------------------------------------------------------------------------------- | ------------------------------------------ |
-| **cs-Nav → Nexus** | El tablero CS 360 (`/cs360`) llama a `ai.bit.lat` para evaluar a un aliado | **Sí** — tokens facturados                                                | Parcial:`nexus_request.cost` + `model` |
-| **MCP-NAV**         | Claude (Desktop/Code) lee datos del portafolio vía el servidor MCP            | **No directo** — el cómputo del modelo lo paga quien corre Claude, no BIT | No                                         |
+| **cs-Nav → Nexus** | El tablero CS 360 (`/cs360`) llama a `ai.vortex-it.com` para evaluar a un aliado | **Sí** — tokens facturados                                                | Parcial:`nexus_request.cost` + `model` |
+| **MCP-NAV**         | Claude (Desktop/Code) lee datos del portafolio vía el servidor MCP            | **No directo** — el cómputo del modelo lo paga quien corre Claude, no Vortex IT | No                                         |
 
 **Decisiones del PM que fijan el alcance (NAVS-88):**
 
@@ -58,7 +58,7 @@ permisos.
                                        ┌─────────────────────────────────┐
  cs-Nav (web)  ──análisis IA──┐        │   Capa de control unificada     │
  p-Nav  (web)  ──análisis IA──┼───────▶│  1. resolver identidad (ya hay) │
-                              │        │  2. checar cuota del usuario    │──▶ Nexus (ai.bit.lat)
+                              │        │  2. checar cuota del usuario    │──▶ Nexus (ai.vortex-it.com)
  p-Nav  (MCP)  ──lectura datos┴───────▶│  3. registrar uso (metadata)    │
                                        │  4. (si excede) 429 + motivo    │
                                        └─────────────────────────────────┘

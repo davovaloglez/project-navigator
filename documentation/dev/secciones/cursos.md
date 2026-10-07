@@ -34,7 +34,7 @@ const filterConfigs = [
 ];
 ```
 
-Las opciones son **hardcoded** porque la lista de O.U. y roles es estable y conocida. Si BIT agrega una O.U. nueva, hay que actualizar este array.
+Las opciones son **hardcoded** porque la lista de O.U. y roles es estable y conocida. Si Vortex IT agrega una O.U. nueva, hay que actualizar este array.
 
 ### Aplicación
 

@@ -8,7 +8,7 @@ import {
 
 /**
  * POST /api/cs360/analyze — inicia la generación de insights del tablero
- * CS 360 en el servicio de IA Nexus (ai.bit.lat). NAV-85: reemplaza al
+ * CS 360 en el servicio de IA Nexus (ai.vortex-it.com). NAV-85: reemplaza al
  * antiguo proxy síncrono de OpenAI.
  *
  * El prompt (persona, regla anti-prompt-injection y JSON Schema de la

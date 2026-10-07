@@ -6,7 +6,7 @@ No necesitas saber programar para leer esta guía.
 
 ## ¿Qué es Project Navigator?
 
-Es el tablero interno de **gestión del portafolio de proyectos** de BIT Technologies. En una sola interfaz puedes ver:
+Es el tablero interno de **gestión del portafolio de proyectos** de Vortex IT. En una sola interfaz puedes ver:
 
 - El estado de cada proyecto (avance, salud, riesgos, responsables).
 - Qué tareas tiene en marcha cada producto (App y Core), con cuántos puntos y quién las lleva.

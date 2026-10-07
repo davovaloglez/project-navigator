@@ -1,4 +1,4 @@
--- Peticiones al servicio de IA Nexus (ai.bit.lat), NAV-85. Patrón asíncrono:
+-- Peticiones al servicio de IA Nexus (ai.vortex-it.com), NAV-85. Patrón asíncrono:
 -- el POST inicia la generación y guarda la webhook URL firmada; el GET de
 -- polling consulta el webhook hasta que hay respuesta y la persiste aquí
 -- (cache permanente + trazabilidad de costo/modelo por petición).

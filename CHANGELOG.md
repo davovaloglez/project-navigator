@@ -99,7 +99,7 @@
 ### Added
 
 **CS 360 — Insights de IA vía Nexus (HU NAV-85)**
-- El análisis de IA del detalle de cliente migra del proxy síncrono de OpenAI al servicio **Nexus** (`ai.bit.lat`) con patrón asíncrono: `POST /api/cs360/analyze` responde **202** con `requestId` y el front hace polling a `GET /api/cs360/analyze/[requestId]` cada 3s (listo en ~5s en la práctica, timeout 2 min). Cliente HTTP en [src/lib/nexus.ts](src/lib/nexus.ts); el prompt (contexts, regla anti-prompt-injection, JSON Schema) y el modelo se administran en el **template del panel de Nexus** — aquí sólo viajan `parameters` (`focus_instruction` + `cliente_json`). El proxy anterior (`src/pages/api/cs360/analyze.ts`) se eliminó.
+- El análisis de IA del detalle de cliente migra del proxy síncrono de OpenAI al servicio **Nexus** (`dvortex.com`) con patrón asíncrono: `POST /api/cs360/analyze` responde **202** con `requestId` y el front hace polling a `GET /api/cs360/analyze/[requestId]` cada 3s (listo en ~5s en la práctica, timeout 2 min). Cliente HTTP en [src/lib/nexus.ts](src/lib/nexus.ts); el prompt (contexts, regla anti-prompt-injection, JSON Schema) y el modelo se administran en el **template del panel de Nexus** — aquí sólo viajan `parameters` (`focus_instruction` + `cliente_json`). El proxy anterior (`src/pages/api/cs360/analyze.ts`) se eliminó.
 - Persistencia en Turso: nueva tabla `nexus_request` (migración [2026-nexus-requests.sql](src/db/migrations/2026-nexus-requests.sql)); las respuestas completadas se sirven desde la BD sin tocar Nexus (cache permanente) y se guarda **costo en tokens + modelo** por análisis. Nueva env `AI_BEARER_TOKEN`; si falta, el endpoint responde 503 `AI_NOT_CONFIGURED` y el tablero degrada limpio sin IA.
 - Campo opcional `generatedAt` en `CsAiEntry` ([ResumenTab.tsx](src/components/sections/cs360/ResumenTab.tsx)): el reporte muestra la fecha del análisis. El `focus_instruction` anexa la regla de spans para los resaltados rojo/verde del reporte.
 
@@ -463,7 +463,7 @@
 **Diagramas de arquitectura y sitemap — NAV-15**
 - Diagramas de arquitectura y mapa de sitio agregados a la documentación (`erDiagram` del modelo de datos en `.gitignore` para no versionar artefactos generados).
 
-- Nueva doc [documentation/dev/arquitectura/seguridad.md](documentation/dev/arquitectura/seguridad.md) — modelo de amenaza, mitigaciones por categoría, comandos de validación periódica, y reglas para agregar endpoints/componentes/deps nuevas. Cubre auditorías de caja blanca (interna) y caja negra (Eduardo Montaño - Líder CiberSeguridad BIT, 2026-05-08).
+- Nueva doc [documentation/dev/arquitectura/seguridad.md](documentation/dev/arquitectura/seguridad.md) — modelo de amenaza, mitigaciones por categoría, comandos de validación periódica, y reglas para agregar endpoints/componentes/deps nuevas. Cubre auditorías de caja blanca (interna) y caja negra (Eduardo Montaño - Consultor CiberSeguridad VortexIT, 2026-05-08).
 
 **Foto de perfil (subir/quitar)**
 - En `/cuenta` → Perfil el usuario puede subir, reemplazar o quitar su foto; en `/admin/[id]` → Perfil un admin puede hacerlo para cualquier usuario. La imagen se redimensiona en el cliente (canvas, `src/utils/imageResize.ts`, máx 512px → JPEG) y se sube server-side a **Vercel Blob** vía `POST/DELETE /api/me/avatar` y `/api/admin/avatar` (helper compartido [src/lib/avatarBlob.ts](src/lib/avatarBlob.ts)).
@@ -524,7 +524,7 @@
 - Sistema de auth multi-usuario que protege todo el dashboard. Antes el deploy era público; ahora requiere sesión iniciada para acceder a cualquier ruta excepto `/login`, `/api/auth/*`, assets estáticos y la cron de snapshots (que usa bearer `CRON_SECRET`).
 - Dos métodos de login en `/login`: email + password y Google OAuth, ambos vía componente `LoginForm`.
 - **Sin self-signup**: el endpoint público de signup de Better-Auth está deshabilitado (`disableSignUp: true` en email/password y en social Google). Solo el admin puede crear usuarios mediante `npm run create-user <email> <password> <nombre>`, que invoca la API server-side de Better-Auth y bypassea el bloqueo público.
-- Restricción opcional por dominio vía env `ALLOWED_GOOGLE_DOMAIN` (e.g. `bit.lat`) para limitar OAuth a la organización.
+- Restricción opcional por dominio vía env `ALLOWED_GOOGLE_DOMAIN` (e.g. `vortex.com`) para limitar OAuth a la organización.
 - Persistencia en Turso (libSQL) con esquema generado por Better-Auth (`user`, `session`, `account`, `verification`).
 - `UserMenu` en el sidebar muestra usuario activo y permite logout; `Sidebar` recibe el `user` desde `Layout.astro` (poblado por middleware).
 

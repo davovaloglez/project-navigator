@@ -1,4 +1,4 @@
-# Project Navigator — BIT Technologies
+# Project Navigator — Vortex IT
 
 Documento de referencia del producto. Cubre **qué es**, **qué hace**, **cómo está construido** y **cómo opera**. Pensado tanto para stakeholders (PMs, dirección) como para developers que entran al proyecto.
 
@@ -10,7 +10,7 @@ Documento de referencia del producto. Cubre **qué es**, **qué hace**, **cómo 
 
 ## 1. Resumen ejecutivo
 
-**Project Navigator** es el tablero interno de gestión de portafolio de BIT Technologies. Centraliza en una sola interfaz:
+**Project Navigator** es el tablero interno de gestión de portafolio de Vortex IT. Centraliza en una sola interfaz:
 
 1. **Estado de cada proyecto** del portafolio (24 campos: PM, hito, épica, salud, prioridad, progreso, fechas, etc.).
 2. **Cronograma granular** de tareas (producto App + producto Core), con story points, throughput y precisión de estimación.
@@ -437,14 +437,14 @@ Implementación: **Better-Auth + Turso (libSQL)**.
 - **Dos métodos**: email + password y Google OAuth.
 - **Enforcement único**: [src/middleware.ts](../src/middleware.ts) cubre todas las rutas. Solo `/login`, `/api/auth/*`, assets estáticos y la cron de snapshots (con bearer `CRON_SECRET`) son públicos.
 - **`Astro.locals.user` y `Astro.locals.session`** poblados por el middleware. Tipados en `src/env.d.ts`. Las páginas pueden leer en frontmatter; React islands consultan vía `authClient.useSession()`.
-- **Restricción opcional por dominio**: env `ALLOWED_GOOGLE_DOMAIN` (e.g. `bit.lat`) limita OAuth a la organización.
+- **Restricción opcional por dominio**: env `ALLOWED_GOOGLE_DOMAIN` (e.g. `vortex-it.com`) limita OAuth a la organización.
 - **Detección de 401**: `useSheetData` detecta respuestas 401 y redirige a `/login` automáticamente.
 
 ### 10.2 Comandos
 
 ```bash
 # Crear un usuario (admin-only) — bypassa disableSignUp via API server-side de Better-Auth
-npm run create-user me@bit.lat 'P@ssw0rd' 'Mi Nombre'
+npm run create-user me@vortex-it.com 'P@ssw0rd' 'Mi Nombre'
 
 # Regenerar el SQL del esquema de auth (después de cambios en plugins/config)
 npm run auth:generate
@@ -475,7 +475,7 @@ npm run auth:generate
 | `BETTER_AUTH_URL`            | URL canónica del deployment                                             | sí         |
 | `GOOGLE_OAUTH_CLIENT_ID`     | OAuth client ID                                                          | sí         |
 | `GOOGLE_OAUTH_CLIENT_SECRET` | OAuth client secret                                                      | sí         |
-| `ALLOWED_GOOGLE_DOMAIN`      | Restringe OAuth al dominio (e.g.`bit.lat`)                          | no          |
+| `ALLOWED_GOOGLE_DOMAIN`      | Restringe OAuth al dominio (e.g.`vortex-it.com`)                          | no          |
 | `CRON_SECRET`                | Bearer que el scheduler externo (EventBridge) envía para pasar auth en `/api/snapshots/auto-capture` | recomendada |
 
 ---

@@ -1,4 +1,4 @@
-# Project Navigator — BIT Technologies
+# Project Navigator — Vortex IT
 
 Dashboard de gestion de portafolio de proyectos y seguimiento de cursos del equipo.
 
@@ -85,4 +85,4 @@ Las variables de entorno deben configurarse en el panel de Vercel (Settings → 
 
 ## Licencia
 
-Proyecto interno de BIT Technologies.
+Proyecto interno de Vortex IT.

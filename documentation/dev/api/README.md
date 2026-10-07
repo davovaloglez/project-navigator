@@ -121,7 +121,7 @@ return new Response(JSON.stringify({ error: message }), {
 | DELETE | [`/api/admin/overrides`](admin-overrides.md) | Turso (`user_permission_override`) | — | Borra override(s) — requiere `action:user:manage` |
 | GET | `/api/admin/user-equipo?userId=` | Turso (`user` + `equipo`) | no-store | Lee el vínculo `user.equipoId` de una cuenta — requiere `action:user:manage` |
 | PUT | `/api/admin/user-equipo` | Turso (`user`) | no-store | Vincula (o desvincula) una cuenta con una persona del registro `equipo` — requiere `action:user:manage`. Invalida el cache de scoping del usuario. |
-| POST | [`/api/cs360/analyze`](cs360-analyze.md) | Nexus (`ai.bit.lat`) + Turso (`nexus_request`) | no-store | Inicia generación de insights CS 360 en Nexus. Responde 202 `{ requestId, status: 'pending' }`. 503 si falta `AI_BEARER_TOKEN`. Gateado por `page:cs360` |
+| POST | [`/api/cs360/analyze`](cs360-analyze.md) | Nexus (`ai.vortex-it.com`) + Turso (`nexus_request`) | no-store | Inicia generación de insights CS 360 en Nexus. Responde 202 `{ requestId, status: 'pending' }`. 503 si falta `AI_BEARER_TOKEN`. Gateado por `page:cs360` |
 | GET | [`/api/cs360/analyze/[requestId]`](cs360-analyze.md) | Turso (`nexus_request`) + Nexus (webhook) | no-store | Polling del análisis iniciado. Sirve desde Turso si ya está `completed`; consulta la webhook URL firmada si sigue `pending`. Gateado por `page:cs360` |
 
 ## Endpoints externos
@@ -137,7 +137,7 @@ return new Response(JSON.stringify({ error: message }), {
 | `CRON_SECRET` | `snapshots/auto-capture` (opcional pero recomendado en producción) |
 | `TURSO_DATABASE_URL`, `TURSO_AUTH_TOKEN` | `user-preferences`, `me/avatar`, `admin/avatar`, `me/mcp-tokens`, `glossary` (vía [src/db/client.ts](../../../src/db/client.ts)) |
 | `AVATAR_S3_BUCKET` | `me/avatar`, `admin/avatar` — nombre del bucket S3 donde se suben los avatares (requerida). Opcionales: `AWS_REGION` (default `us-east-1`) y `AVATAR_CDN_URL` (dominio CloudFront). Las credenciales AWS vienen de la cadena por defecto del SDK (rol de ejecución en Amplify; `AWS_ACCESS_KEY_ID`/`AWS_SECRET_ACCESS_KEY` en local) |
-| `AI_BEARER_TOKEN` | `cs360/analyze` (POST) — token servidor para Nexus (`ai.bit.lat`). Si falta, el endpoint responde 503. El prompt/modelo viven en el panel de Nexus; no se configuran aquí |
+| `AI_BEARER_TOKEN` | `cs360/analyze` (POST) — token servidor para Nexus (`ai.vortex-it.com`). Si falta, el endpoint responde 503. El prompt/modelo viven en el panel de Nexus; no se configuran aquí |
 | `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `GOOGLE_OAUTH_CLIENT_ID`, `GOOGLE_OAUTH_CLIENT_SECRET`, `ALLOWED_GOOGLE_DOMAIN` | `/api/auth/*` |
 
 ## Patrón de error de cliente

@@ -98,14 +98,14 @@ for i in 1 2 3 4 5; do
   curl -s -o /dev/null -w "noexiste: %{time_total}s\n" \
     -X POST https://<deploy>/api/auth/sign-in/email \
     -H 'Content-Type: application/json' \
-    -d '{"email":"no-existe-'$i'@bit.lat","password":"x"}'
+    -d '{"email":"no-existe-'$i'@vortex-it.com","password":"x"}'
 done
 
 for i in 1 2 3 4 5; do
   curl -s -o /dev/null -w "existe:   %{time_total}s\n" \
     -X POST https://<deploy>/api/auth/sign-in/email \
     -H 'Content-Type: application/json' \
-    -d '{"email":"<user-real>@bit.lat","password":"x"}'
+    -d '{"email":"<user-real>@vortex-it.com","password":"x"}'
 done
 ```
 
@@ -343,7 +343,7 @@ npm ls better-auth   # top-level debe ser ≥ 1.6.2 (runtime no vulnerable)
 
 | Fecha | Tipo | Origen | Hallazgos |
 |---|---|---|---|
-| 2026-05-08 | Caja negra | Eduardo Montaño — Líder CiberSeguridad BIT | Timing attack, rate limit débil, source maps en prod, 404 expone sidebar, headers ausentes |
+| 2026-05-08 | Caja negra | Eduardo Montaño — Consultor CiberSeguridad VortexIT | Timing attack, rate limit débil, source maps en prod, 404 expone sidebar, headers ausentes |
 | 2026-05-12 | Caja blanca | Auditoría interna | `dev.db` rastreado en git, `client_secret_*.json` gitignored por nombre exacto |
 
 Mitigaciones aplicadas en la release [1.7.1](../../../CHANGELOG.md). Próxima auditoría sugerida: **caja gris** (auditor con credenciales válidas para probar IDOR y autorización horizontal en endpoints como `/api/user-preferences` y rutas dinámicas `/proyecto/[folio]`).

@@ -68,7 +68,7 @@ Es la fórmula con la que pasamos de **costo interno** a **precio al cliente**. 
 3. **+ Margen** — sumamos el margen de utilidad que define el negocio.
 4. **+ IVA** — finalmente el impuesto.
 
-Cada rate viene del Excel del modelo financiero (sheet `Costos`). Si BIT cambia los rates en el Sheet, el tablero los toma automáticamente.
+Cada rate viene del Excel del modelo financiero (sheet `Costos`). Si Vortex IT cambia los rates en el Sheet, el tablero los toma automáticamente.
 
 ## ¿Por qué importa?
 

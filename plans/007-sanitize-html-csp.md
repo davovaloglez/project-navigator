@@ -18,7 +18,7 @@
 ## Why this matters
 
 The CS360 module renders HTML from two not-fully-trusted sources directly into the DOM via
-`dangerouslySetInnerHTML`: (a) AI-generated reports from the Nexus service (`ai.bit.lat`), and (b)
+`dangerouslySetInnerHTML`: (a) AI-generated reports from the Nexus service (`ai.vortex-it.com`), and (b)
 customer data (tickets/activities/audit "Magnum" HTML) imported from the external Samva export. There
 is **no sanitization** (DOMPurify is not in the repo). The code comment even says *"sin sanitizar por
 ahora; evaluar DOMPurify a futuro."* Meanwhile the app's CSP is **Report-Only** with

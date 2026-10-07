@@ -2,7 +2,7 @@
 
 Generación asíncrona de insights de IA para el tablero CS 360 (NAV-85). Sustituye al antiguo proxy síncrono de OpenAI que existía en `src/pages/api/cs360/analyze.ts`.
 
-El patrón es de dos pasos: el POST inicia la generación en el servicio Nexus (`ai.bit.lat`) y devuelve un `requestId`; el cliente hace polling al GET hasta recibir `status: 'completed'`. El prompt completo (prefix/suffix, anti-prompt-injection y JSON Schema de la respuesta) vive en el **panel de administración de Nexus** — no en este repositorio.
+El patrón es de dos pasos: el POST inicia la generación en el servicio Nexus (`ai.vortex-it.com`) y devuelve un `requestId`; el cliente hace polling al GET hasta recibir `status: 'completed'`. El prompt completo (prefix/suffix, anti-prompt-injection y JSON Schema de la respuesta) vive en el **panel de administración de Nexus** — no en este repositorio.
 
 - **Source POST:** [src/pages/api/cs360/analyze/index.ts](../../../src/pages/api/cs360/analyze/index.ts)
 - **Source GET:** [src/pages/api/cs360/analyze/[requestId].ts](../../../src/pages/api/cs360/analyze/[requestId].ts)
@@ -37,12 +37,12 @@ Los cuatro valores de `focus` se mapean a una instrucción textual server-side (
 { error: string; code: 'AI_NOT_CONFIGURED' }  // falta AI_BEARER_TOKEN
 
 // 502 Bad Gateway
-{ error: string; code: 'AI_UPSTREAM_ERROR' }  // ai.bit.lat no respondió bien
+{ error: string; code: 'AI_UPSTREAM_ERROR' }  // ai.vortex-it.com no respondió bien
 ```
 
 ### Side effects
 
-1. Llama `startNexusGeneration()` en [src/lib/nexus.ts](../../../src/lib/nexus.ts): genera un ULID local, hace `POST https://ai.bit.lat/api/v1/ai-service` con `template_id = 01KTYKWS28RDRZEVQ1JPM6TWBE`, `client = 'samva'`, `tenant_id = 1` y `parameters { focus_instruction, cliente_json }`. A todo `focus_instruction` se le anexa server-side la regla de los spans de color (`SPAN_RULE`): también vive en el JSON Schema del template, pero gpt-4o-mini sólo la cumple consistentemente cuando va cerca del mensaje de usuario.
+1. Llama `startNexusGeneration()` en [src/lib/nexus.ts](../../../src/lib/nexus.ts): genera un ULID local, hace `POST https://ai.vortex-it.com/api/v1/ai-service` con `template_id = 01KTYKWS28RDRZEVQ1JPM6TWBE`, `client = 'samva'`, `tenant_id = 1` y `parameters { focus_instruction, cliente_json }`. A todo `focus_instruction` se le anexa server-side la regla de los spans de color (`SPAN_RULE`): también vive en el JSON Schema del template, pero gpt-4o-mini sólo la cumple consistentemente cuando va cerca del mensaje de usuario.
 2. Inserta una fila en `nexus_request` (Turso) con el `ulid`, `template_id`, `tenant_id`, `user_id` del llamante y la `webhook_url` firmada devuelta por Nexus.
 
 ## GET `/api/cs360/analyze/[requestId]`
@@ -84,7 +84,7 @@ El `requestId` debe ser un ULID válido (26 caracteres Crockford base32, validad
 
 ```
 1. Busca la fila en nexus_request por ulid.
-2. Si status = 'completed' → responde desde response_data (sin llamar a ai.bit.lat).
+2. Si status = 'completed' → responde desde response_data (sin llamar a ai.vortex-it.com).
 3. Si status = 'failed'    → responde { status: 'failed' }.
 4. Si status = 'pending'   → llama pollNexusWebhook(webhook_url):
      a. Si responseMessage = null → aún en proceso → { status: 'pending' }.
@@ -127,11 +127,11 @@ Tabla `nexus_request` en Turso. Migración: [src/db/migrations/2026-nexus-reques
 
 | Variable | Descripción |
 |---|---|
-| `AI_BEARER_TOKEN` | Token server-side para autenticarse con `ai.bit.lat`. Requerido para que el POST funcione; sin él el endpoint devuelve 503 `AI_NOT_CONFIGURED` |
+| `AI_BEARER_TOKEN` | Token server-side para autenticarse con `ai.vortex-it.com`. Requerido para que el POST funcione; sin él el endpoint devuelve 503 `AI_NOT_CONFIGURED` |
 
 ## Detalles no obvios
 
 - **El prompt no vive en el repo.** El template `01KTYKWS28RDRZEVQ1JPM6TWBE` en Nexus contiene el prefix/suffix de contexto, la regla anti-prompt-injection y el JSON Schema que fuerza `{ recalculated_score, markdown_report }`. Cambios al prompt se hacen en el panel de Nexus sin desplegar.
-- **`AI_BEARER_TOKEN` nunca llega al browser.** El POST del cliente va a `/api/cs360/analyze` (SSR); el token sale sólo desde el lambda hacia `ai.bit.lat`. La `webhook_url` firmada tampoco se expone al browser: se guarda en Turso y se consulta únicamente desde el GET server-side.
+- **`AI_BEARER_TOKEN` nunca llega al browser.** El POST del cliente va a `/api/cs360/analyze` (SSR); el token sale sólo desde el lambda hacia `ai.vortex-it.com`. La `webhook_url` firmada tampoco se expone al browser: se guarda en Turso y se consulta únicamente desde el GET server-side.
 - **Idempotencia del polling.** Una vez `completed`, el GET sirve siempre desde `response_data` en Turso sin volver a llamar a Nexus. El browser puede recargar sin riesgo de consumir tokens adicionales.
 - **ULID generado en el servidor.** El ULID del `requestId` lo produce `ulid()` de `src/lib/nexus.ts` (sin dependencias externas: 48 bits de timestamp + 80 bits de `crypto.randomBytes`) antes de llamar a Nexus; ese mismo valor se manda a Nexus como `ulid` en el body del POST.

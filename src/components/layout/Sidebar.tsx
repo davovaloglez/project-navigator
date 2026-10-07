@@ -74,7 +74,7 @@ export default function Sidebar({ currentPath, user, allowedPages }: SidebarProp
         <div className="p-5 sidebar-mini:p-3 border-b border-slate-800 flex items-center justify-between sidebar-mini:justify-center gap-2">
           <div className="min-w-0 sidebar-mini:hidden">
             <h1 className="text-lg font-bold text-white tracking-tight">Project Navigator</h1>
-            <p className="text-xs text-slate-500 mt-0.5">BIT Technologies</p>
+            <p className="text-xs text-slate-500 mt-0.5">Vortex IT</p>
           </div>
           <button
             onClick={toggleCollapsed}
@@ -98,11 +98,10 @@ export default function Sidebar({ currentPath, user, allowedPages }: SidebarProp
                 target={item.newTab ? '_blank' : undefined}
                 rel={item.newTab ? 'noopener noreferrer' : undefined}
                 title={item.label}
-                className={`flex items-center gap-3 px-3 sidebar-mini:px-0 sidebar-mini:justify-center py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                  isActive
+                className={`flex items-center gap-3 px-3 sidebar-mini:px-0 sidebar-mini:justify-center py-2.5 rounded-lg text-sm font-medium transition-colors ${isActive
                     ? 'bg-blue-500/15 text-blue-400'
                     : 'text-slate-400 hover:text-white hover:bg-slate-800'
-                }`}
+                  }`}
               >
                 <item.icon className="w-4.5 h-4.5 shrink-0" />
                 <span className="truncate sidebar-mini:hidden">{item.label}</span>
@@ -136,9 +135,8 @@ export default function Sidebar({ currentPath, user, allowedPages }: SidebarProp
                       href={item.href}
                       target={item.newTab ? '_blank' : undefined}
                       rel={item.newTab ? 'noopener noreferrer' : undefined}
-                      className={`flex flex-col items-center gap-1.5 py-3 rounded-xl text-xs font-medium transition-colors ${
-                        isActive ? 'text-blue-400 bg-blue-500/10' : 'text-slate-400 hover:text-white hover:bg-slate-800'
-                      }`}
+                      className={`flex flex-col items-center gap-1.5 py-3 rounded-xl text-xs font-medium transition-colors ${isActive ? 'text-blue-400 bg-blue-500/10' : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                        }`}
                     >
                       <item.icon className="w-5 h-5" />
                       {item.label}
@@ -167,9 +165,8 @@ export default function Sidebar({ currentPath, user, allowedPages }: SidebarProp
                 href={item.href}
                 target={item.newTab ? '_blank' : undefined}
                 rel={item.newTab ? 'noopener noreferrer' : undefined}
-                className={`flex-1 flex flex-col items-center gap-1 py-3 text-xs font-medium transition-colors ${
-                  isActive ? 'text-blue-400' : 'text-slate-500'
-                }`}
+                className={`flex-1 flex flex-col items-center gap-1 py-3 text-xs font-medium transition-colors ${isActive ? 'text-blue-400' : 'text-slate-500'
+                  }`}
               >
                 <item.icon className="w-5 h-5" />
                 {item.label}
@@ -178,9 +175,8 @@ export default function Sidebar({ currentPath, user, allowedPages }: SidebarProp
           })}
           <button
             onClick={() => setMoreOpen((prev) => !prev)}
-            className={`flex-1 flex flex-col items-center gap-1 py-3 text-xs font-medium transition-colors ${
-              moreOpen || isMoreActive ? 'text-blue-400' : 'text-slate-500'
-            }`}
+            className={`flex-1 flex flex-col items-center gap-1 py-3 text-xs font-medium transition-colors ${moreOpen || isMoreActive ? 'text-blue-400' : 'text-slate-500'
+              }`}
           >
             {moreOpen ? <X className="w-5 h-5" /> : <MoreHorizontal className="w-5 h-5" />}
             Más

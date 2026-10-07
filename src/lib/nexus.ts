@@ -1,7 +1,7 @@
 import { randomBytes } from 'node:crypto';
 
 /**
- * Cliente del servicio de IA Nexus (ai.bit.lat), NAV-85.
+ * Cliente del servicio de IA Nexus (ai.vortex-it.com), NAV-85.
  *
  * El servicio funciona por templates administrados en su panel: el prompt
  * completo (prefix/suffix contexts + template con placeholders + JSON Schema
@@ -76,15 +76,15 @@ export async function startNexusGeneration(
 
   if (!response.ok) {
     const errorText = await response.text().catch(() => '');
-    console.error('Error al llamar ai.bit.lat:', response.status, errorText);
-    throw new Error(`ai.bit.lat respondió ${response.status}`);
+    console.error('Error al llamar ai.vortex-it.com:', response.status, errorText);
+    throw new Error(`ai.vortex-it.com respondió ${response.status}`);
   }
 
   const data = (await response.json()) as { data?: { webhook?: string } };
   const webhookUrl = data?.data?.webhook;
   if (!webhookUrl) {
-    console.error('ai.bit.lat no devolvió webhook URL:', data);
-    throw new Error('ai.bit.lat no devolvió webhook URL');
+    console.error('ai.vortex-it.com no devolvió webhook URL:', data);
+    throw new Error('ai.vortex-it.com no devolvió webhook URL');
   }
 
   return { requestId, webhookUrl };
@@ -102,8 +102,8 @@ export async function pollNexusWebhook(webhookUrl: string): Promise<NexusPollRes
   const response = await fetch(webhookUrl, { headers: { Accept: 'application/json' } });
   if (!response.ok) {
     const errorText = await response.text().catch(() => '');
-    console.error('Error al consultar webhook de ai.bit.lat:', response.status, errorText);
-    throw new Error(`webhook de ai.bit.lat respondió ${response.status}`);
+    console.error('Error al consultar webhook de ai.vortex-it.com:', response.status, errorText);
+    throw new Error(`webhook de ai.vortex-it.com respondió ${response.status}`);
   }
 
   const result = (await response.json()) as {

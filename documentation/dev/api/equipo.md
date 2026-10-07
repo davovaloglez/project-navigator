@@ -30,9 +30,9 @@ Cookie: better-auth.session_token=<token>
   "equipo": [
     {
       "id": "lolvera",
-      "fullName": "Lorena Raquel Olvera Rodriguez",
-      "nickname": "Lore",
-      "email": "lorena@bit.lat",
+      "fullName": "Lorenso Raquel Olmos Valdez",
+      "nickname": "Loren",
+      "email": "lorena@vortex-it.com",
       "title": "Project Manager",
       "department": "Tech",
       "roleId": "project-manager",

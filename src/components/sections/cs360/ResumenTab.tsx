@@ -53,7 +53,7 @@ function fechasDeInteraccion(cliente: CsCliente): Date[] {
 }
 
 /**
- * NAV-85: la generación en Nexus (ai.bit.lat) es asíncrona — el POST responde
+ * NAV-85: la generación en Nexus (ai.vortex-it.com) es asíncrona — el POST responde
  * 202 con un requestId y el resultado se recoge por polling. En la práctica
  * suele estar listo en el primer intento (~5s).
  */
@@ -395,7 +395,7 @@ export default function ResumenTab({ cliente, baseScore, aiEntry, onAiResult }: 
                     <p className="font-medium text-slate-500">Selecciona un enfoque y genera los insights.</p>
                     <p className="text-xs mt-1 text-center max-w-sm">
                       El motor procesará el contexto integral de la cuenta (tickets, llamadas, uso) con
-                      protección Anti-Prompt Injection vía el servicio de IA Nexus (ai.bit.lat).
+                      protección Anti-Prompt Injection vía el servicio de IA Nexus (ai.vortex-it.com).
                     </p>
                   </div>
                 )
