@@ -82,4 +82,18 @@ insert into "technology" ("id","name","category") values
   ('graphql','GraphQL','tool'),
   ('openai','OpenAI / LLM APIs','tool'),
   ('power-bi','Power BI','tool'),
-  ('google-sheets','Google Sheets API','tool');
+  -- ofimatica
+  ('google-drive','Google Drive','ofimatica'),
+  ('google-sheets','Google Sheets','ofimatica'),
+  ('google-docs','Google Docs','ofimatica'),
+  ('google-sites','Google Sites','ofimatica'),
+  ('google-apps-script','Google Apps Script','ofimatica'),
+  ('ms-office','MS Office','ofimatica'),
+  ('lucidchart','Lucidchart','ofimatica'),
+  -- management
+  ('ms-project','MS Project','management'),
+  ('jira','Jira','management'),
+  ('monday','Monday.com','management'),
+  ('samva','Samva','management'),
+  ('confluence','Confluence','management'),
+  ('navigator','Navigator','management');

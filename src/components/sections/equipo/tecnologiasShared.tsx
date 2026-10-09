@@ -40,7 +40,9 @@ export const CATEGORY_LABEL: Record<string, string> = {
   devops: 'DevOps',
   tool: 'Herramientas',
   design: 'Diseño',
+  ofimatica: 'Ofimática',
+  management: 'Management',
 };
 
 // Fixed category order for the grid columns
-export const CATEGORY_ORDER = ['language', 'framework', 'mobile', 'database', 'cloud', 'devops', 'tool', 'design'];
+export const CATEGORY_ORDER = ['language', 'framework', 'mobile', 'database', 'cloud', 'devops', 'tool', 'design', 'ofimatica', 'management'];

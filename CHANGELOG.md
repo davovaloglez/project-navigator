@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.23.0] - 2026-10-09
+
+### Added
+
+**Nuevas categorías y tecnologías en la Matriz de Tecnologías**
+- Agregadas las categorías `Ofimática` (`ofimatica`) y `Management` (`management`) al catálogo de tecnologías y a la matriz de habilidades del equipo.
+- Nuevas tecnologías de Ofimática: Google Drive, Google Sheets, Google Docs, Google Sites, Google Apps Script, MS Office y Lucidchart.
+- Nuevas tecnologías de Management: MS Project, Jira, Monday.com, Samva, Confluence y Navigator.
+- Nueva migración [src/db/migrations/2026-add-ofimatica-management-techs.sql](src/db/migrations/2026-add-ofimatica-management-techs.sql).
+
 ## [1.22.0] - 2026-10-02
 
 ### Added
