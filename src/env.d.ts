@@ -7,6 +7,9 @@ declare global {
     interface Locals {
       user: Session['user'] | null;
       session: Session['session'] | null;
+      activeEmpresa: string | null;
+      isSuperadmin: boolean;
+      userEmpresas: Array<{ id: string; nombre: string; rol: string }>;
     }
   }
 }

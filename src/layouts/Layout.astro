@@ -63,7 +63,14 @@ const permsJson = JSON.stringify(perms)
     </script>
   </head>
   <body class="bg-slate-950 text-slate-200 min-h-screen">
-    <Sidebar currentPath={currentPath} user={user} allowedPages={perms.pages} client:load />
+    <Sidebar
+      currentPath={currentPath}
+      user={user}
+      allowedPages={perms.pages}
+      activeEmpresa={Astro.locals.activeEmpresa}
+      isSuperadmin={Astro.locals.isSuperadmin}
+      client:load
+    />
     <main class="md:ml-56 [html.sidebar-collapsed_&]:md:ml-16 transition-[margin-left] duration-200 p-3 sm:p-6 pb-24 md:pb-6 min-h-screen print:ml-0 print:p-4">
       <slot />
     </main>

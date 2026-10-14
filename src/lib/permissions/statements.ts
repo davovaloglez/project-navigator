@@ -35,11 +35,21 @@ export const statement = {
     'novedades',
     'glosario',
     'metricas-dev',
+    'repositorios',
     'cs360',
     'admin',
   ],
   data: ['costos'],
-  action: ['snapshot:create', 'user:manage', 'equipo:manage', 'evaluacion:view-all', 'evaluacion:manage', 'tecnologia:manage'],
+  action: [
+    'snapshot:create',
+    'user:manage',
+    'equipo:manage',
+    'evaluacion:view-all',
+    'evaluacion:manage',
+    'tecnologia:manage',
+    'repositorio:manage',
+    'empresa:manage',
+  ],
 } as const;
 
 export const ac = createAccessControl(statement);

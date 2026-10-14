@@ -1,228 +1,390 @@
-%% ============================================================
-%% Project Navigator — Modelo de datos propuesto (v5)
-%%
-%% DOS ALMACENES (híbrido, migrando hacia más Turso):
-%%  [TURSO]  = identidad, integridad-crítica, sensible, estado
-%%             generado por el app. Llaves `id` únicas y estables.
-%%             FK/UNIQUE las impone SQLite de verdad.
-%%  [SHEETS] = lo que negocio (PM) edita a diario. Referencia a
-%%             entidades de Turso por `id` vía dropdown de Data
-%%             Validation (muestra nombre, guarda id) — gestionado
-%%             desde /admin, NUNCA se teclea el id a mano.
-%%
-%% DECISIONES CLAVE v5:
-%%  - Llave de unión = `id` (NO email). email es solo atributo
-%%    de contacto/match.
-%%  - EQUIPO (antes PERSON): registro canónico ÚNICO del equipo
-%%    (Turso). Lo mantienen los PM desde /admin. Sin duplicar.
-%%  - USER (Better-Auth, intacto) = SOLO quien hace login. Apunta
-%%    a EQUIPO vía equipoId (0..1). Login = existe fila USER ligada.
-%%  - "rol" son TRES ejes ortogonales, NO mezclar:
-%%    (1) EQUIPO.role_id -> ROLES = BANDA de costo (1 de los 12 de
-%%        la hoja Costos; drives ROLE_RATES). NULL si RH no la asignó
-%%        — el título de Cursos NO trae seniority, no se infiere.
-%%    (2) EQUIPO.title = TÍTULO funcional real (Full-Stack Developer,
-%%        Mobile Engineer, Tech Lead...). Texto libre de Cursos.Rol,
-%%        para display/directorio. NO referencia ROLES.
-%%    (3) USER.role = rol de PERMISOS (admin/pm/dev/ventas...).
-%%    Los roles de RELACIÓN de proyecto (PM/arquitecto/dev de un
-%%    proyecto) NO son nada de lo anterior: viven en
-%%    PROJECTS.pm_id/arquitecto_id y PROJECT_DEVELOPERS.
-%%  - EQUIPO.active = "sigue en el equipo" (tracking), NO "acceso".
-%%  - COSTO = dos verdades, dos tablas, NUNCA columna en ROLES:
-%%      EQUIPO_RATES = pago REAL por persona (confidencial).
-%%      ROLE_RATES   = costo ESTÁNDAR por puesto (fallback).
-%%    Ambas con valid_from/valid_to (historia = filas en el tiempo).
-%%    Resolución en app: persona+fecha -> EQUIPO_RATES vigente; si
-%%    no hay -> su puesto -> ROLE_RATES vigente.
-%%  - TODO el modelo financiero (hoja Costos) migra a Turso por ser
-%%    sensible/privado, INCREMENTALMENTE. ROLE_RATES + FINANCIAL_MODEL
-%%    ya modelados aquí como [TURSO]. La hoja Costos se elimina al
-%%    final de esa migración.
-%%  - SNAPSHOTS: vive en Turso (cron-managed). Fuera del modelo de
-%%    negocio — ver nota "Alcance del diagrama" al final.
-%%  - Desbloquea Fase 5 de roles/permisos (scoping por identidad):
-%%    usuario logueado -> USER.equipoId -> EQUIPO.id -> filtra
-%%    filas de Sheets por pm_id/developer_id/asignado_id.
-%% ============================================================
+# Modelo de datos relacional (Turso) — Multi-Empresa
+
+Modelo relacional de base de datos en **Turso (libSQL/SQLite)** para soportar la migración definitiva desde Google Sheets hacia un esquema relacional con integridad referencial, transacciones ACID y soporte nativo para **múltiples empresas independientes**.
+
+---
+
+## 1. Principios arquitectónicos
+
+1. **Identidad global (`user`) y membresías por empresa (`empresa_miembro`)**:
+   - `user` es gestionada por Better-Auth como credencial única de login (email, OAuth, sesiones).
+   - Una persona física puede prestar servicios en múltiples empresas independientes mediante `empresa_miembro`. En cada empresa cuenta con un puesto laboral, departamento base, jefe directo (`manager_id`), rol de permisos y tarifas independientes.
+2. **Empresas iniciales**:
+   - El sistema arranca con dos empresas semilla: `vortex-it` (Vortex IT) y `bit-technologies` (Bit Technologies).
+3. **Departamentos y Equipos de trabajo (Squads)**:
+   - Cada empresa define sus propios `departamento` (áreas funcionales como Ingeniería, Producto, Diseño) y `equipo_trabajo` (squads o unidades de entrega como Squad Core, Squad Mobile).
+   - Los equipos pertenecen a la empresa y opcionalmente a un departamento.
+   - La relación entre miembros y equipos es N:M a través de `equipo_miembro`.
+4. **Colaboración Cross-Empresa en Proyectos**:
+   - Un proyecto pertenece a una empresa titular (`empresa_id`) y a un cliente (`cliente_id`).
+   - Distintos equipos de varias empresas pueden colaborar en un mismo proyecto mediante `proyecto_equipo`.
+   - La asignación granular de colaboradores se realiza en `proyecto_miembro`, permitiendo computar costos según las tarifas vigentes de la empresa de procedencia del colaborador.
+5. **Transición incremental de Google Sheets**:
+   - Las lecturas operativas de Google Sheets (incluyendo la hoja `Repositorios` y tablas operativas) se mantienen activas durante la fase de convivencia hasta que todas las entidades y repositorios estén migrados y validados en Turso.
+
+---
+
+## 2. Diagrama Entidad-Relación (Mermaid)
 
 ```mermaid
 erDiagram
-    %% ---- [TURSO] Identidad, puestos y costo ----
-    EQUIPO ||--o| USER : "puede tener acceso (login)"
-    EQUIPO }o--|| ROLES : "tiene puesto"
-    EQUIPO ||--o{ EQUIPO : "reporta a (jefe directo)"
-    EQUIPO ||--o{ EQUIPO_RATES : "pago real (confidencial)"
-    ROLES  ||--o{ ROLE_RATES : "costo estándar (confidencial)"
+    %% Identidad global y membresias
+    USER ||--o{ EMPRESA_MIEMBRO : "tiene membresia en"
+    USER ||--o{ SESSION : "inicia"
+    USER ||--o{ ACCOUNT : "autenticado con"
+    USER ||--o{ USER_PREFERENCES : "configura"
+    USER ||--o{ USER_PERMISSION_OVERRIDE : "tiene overrides"
 
-    %% ---- [TURSO->SHEETS] EQUIPO referenciada desde Sheets por id ----
-    EQUIPO ||--o{ PROJECTS : "es PM de"
-    EQUIPO ||--o{ PROJECTS : "es Arquitecto de"
-    EQUIPO ||--o{ PROJECT_DEVELOPERS : "participa en"
-    EQUIPO ||--o{ TASKS : "asignado a"
-    EQUIPO ||--o| COURSE_PROGRESS : "tiene progreso"
+    EMPRESA ||--o{ EMPRESA_MIEMBRO : "cuenta con"
+    EMPRESA ||--o{ DEPARTAMENTO : "organizada en"
+    EMPRESA ||--o{ EQUIPO_TRABAJO : "posee"
+    EMPRESA ||--o{ CLIENTE : "atiende a"
+    EMPRESA ||--o{ PROYECTO : "es titular de"
+    EMPRESA ||--o{ PUESTO_ROL : "define catalogo de puestos"
+    EMPRESA ||--o| MODELO_FINANCIERO : "aplica pricing"
 
-    %% ---- [SHEETS] Negocio ----
-    CLIENTS  ||--o{ PROJECTS : "dueño de"
-    PROJECTS ||--o{ PROJECT_DEVELOPERS : "tiene"
-    PROJECTS ||--o{ TASKS : "contiene"
-    PROJECTS ||--o{ PROJECT_DEPENDENCIES : "bloqueado por"
-    PROJECTS ||--o{ PROJECT_DEPENDENCIES : "bloquea a"
-    SPRINTS  ||--o{ TASKS : "agendada en"
+    %% Organizacion interna y tarifas
+    DEPARTAMENTO ||--o{ EMPRESA_MIEMBRO : "adscribe como base a"
+    DEPARTAMENTO ||--o{ EQUIPO_TRABAJO : "contiene (opcional)"
 
-    %% ===================== [TURSO] =====================
-    EQUIPO {
-        string  id PK "Llave única estable — referenciada por TODO"
-        string  full_name "Nombre completo canónico"
-        string  nickname "Apodo usado en Projects (Lore, Ale, Dave)"
-        string  role_id FK "-> ROLES.id = BANDA de costo (1 de 12). NULL si RH no la asignó"
-        string  title "Título funcional real (Cursos.Rol, display). Texto libre, NO FK"
-        string  department "OU"
-        string  manager_id FK "-> EQUIPO.id (jefe directo)"
-        string  email "Contacto/match — NO es la llave"
-        boolean active "Sigue en el equipo (tracking) — NO = acceso"
+    PUESTO_ROL ||--o{ PUESTO_TARIFA : "historico costo estandar"
+    PUESTO_ROL ||--o{ EMPRESA_MIEMBRO : "clasifica banda de"
+
+    EMPRESA_MIEMBRO ||--o{ MIEMBRO_TARIFA : "historico pago real"
+    EMPRESA_MIEMBRO ||--o{ EMPRESA_MIEMBRO : "reporta a (jefe directo)"
+    EMPRESA_MIEMBRO ||--o{ EQUIPO_MIEMBRO : "integra"
+    EMPRESA_MIEMBRO ||--o{ PROYECTO_MIEMBRO : "participa directamente en"
+    EMPRESA_MIEMBRO ||--o{ EVALUACION : "recibe auto-evaluacion"
+    EMPRESA_MIEMBRO ||--o{ MIEMBRO_TECNOLOGIA : "domina skills"
+    EMPRESA_MIEMBRO ||--o{ CURSO_PROGRESO : "cursa programas"
+
+    EQUIPO_TRABAJO ||--o{ EQUIPO_MIEMBRO : "esta conformado por"
+    EQUIPO_TRABAJO ||--o{ PROYECTO_EQUIPO : "colabora en"
+
+    %% Clientes, proyectos y ejecucion
+    CLIENTE ||--o{ PROYECTO : "solicita"
+
+    PROYECTO ||--o{ PROYECTO_EQUIPO : "colabora con equipos de N empresas"
+    PROYECTO ||--o{ PROYECTO_MIEMBRO : "asigna miembros"
+    PROYECTO ||--o{ PROYECTO_DEPENDENCIA : "bloqueado por / bloquea a"
+    PROYECTO ||--o{ PROYECTO_REPOSITORIO : "alberga codigo en"
+    PROYECTO ||--o{ SPRINT : "planifica entregas en"
+    PROYECTO ||--o{ TAREA : "desglosado en"
+
+    SPRINT ||--o{ TAREA : "agrupa en iteracion"
+    EMPRESA_MIEMBRO ||--o{ TAREA : "ejecuta tarea asignada"
+    TECNOLOGIA ||--o{ MIEMBRO_TECNOLOGIA : "clasifica skill"
+
+    %% ==========================================
+    %% DETALLE DE ATRIBUTOS
+    %% ==========================================
+    EMPRESA {
+        string id PK "vortex-it, bit-technologies"
+        string nombre "Nombre comercial o razon social"
+        string logo_url "URL del logotipo"
+        string moneda "MXN, USD"
+        boolean activa "Estado operativo"
+        datetime created_at
+        datetime updated_at
     }
+
     USER {
-        string  id PK "Better-Auth (intacto)"
-        string  equipoId FK "-> EQUIPO.id (nullable). El PUENTE."
-        string  name
-        string  email UK "Credencial de login"
-        string  role "Rol de PERMISOS (admin/pm/dev/ventas...)"
+        string id PK "Better-Auth ID unico"
+        string name "Nombre global"
+        string email UK "Credencial de login"
         boolean emailVerified
+        string image "Avatar URL"
+        string role "Rol global del sistema (admin/user)"
         boolean banned
+        datetime createdAt
+        datetime updatedAt
     }
-    ROLES {
-        string id PK "slug legible: desarrollador-sr, qa..."
-        string name UK "Puesto exacto de la hoja Costos (17: 12 originales + cio/desarrollador-mid/desarrollador-trainee/ed-tech/service-manager)"
+
+    EMPRESA_MIEMBRO {
+        string id PK "Identificador unico de la persona en la empresa"
+        string empresa_id FK "-> EMPRESA.id"
+        string user_id FK "-> USER.id (nullable si no tiene acceso web)"
+        string full_name "Nombre completo canónico"
+        string nickname "Apodo interno para visualización"
+        string email_corporativo "Email corporativo en la empresa"
+        string puesto_id FK "-> PUESTO_ROL.id (banda salarial)"
+        string titulo_funcional "Título funcional real (ej: Full-Stack Sr)"
+        string departamento_id FK "-> DEPARTAMENTO.id (adscripción base)"
+        string manager_id FK "-> EMPRESA_MIEMBRO.id (jefe directo)"
+        string rol_permiso "admin, pm, dev, ventas, directores, gerentes"
+        boolean activo "Continúa activo en la empresa"
+        datetime fecha_ingreso
+        datetime fecha_salida
     }
-    %% Pago REAL por persona, con vigencia. Confidencial -> Turso.
-    EQUIPO_RATES {
-        string  id PK
-        string  equipo_id FK "-> EQUIPO.id"
-        decimal hourly_cost
-        decimal monthly_cost
-        date    valid_from "Inicio vigencia"
-        date    valid_to "Fin vigencia (vacío = vigente)"
+
+    DEPARTAMENTO {
+        string id PK "slug o cuid (ej: dep-tecnologia)"
+        string empresa_id FK "-> EMPRESA.id"
+        string nombre "Nombre del departamento"
+        string descripcion "Descripción de funciones"
+        string lider_id FK "-> EMPRESA_MIEMBRO.id"
+        boolean activo
     }
-    %% Costo ESTÁNDAR por puesto, con vigencia. Reemplaza el
-    %% Costo/hora de la hoja Costos. Fallback de EQUIPO_RATES.
-    ROLE_RATES {
-        string  id PK
-        string  role_id FK "-> ROLES.id"
-        decimal hourly_cost
-        decimal monthly_cost
-        date    valid_from
-        date    valid_to
+
+    EQUIPO_TRABAJO {
+        string id PK "slug o cuid (ej: squad-core, squad-mobile)"
+        string empresa_id FK "-> EMPRESA.id (empresa de origen del equipo)"
+        string departamento_id FK "-> DEPARTAMENTO.id (opcional)"
+        string nombre "Nombre del equipo / squad"
+        string descripcion "Objetivo o ámbito del equipo"
+        string lead_id FK "-> EMPRESA_MIEMBRO.id"
+        boolean activo
     }
-    %% Modelo de pricing (hoja Costos filas 13-21). Migra a Turso
-    %% INCREMENTALMENTE. App-critical: applyFinancialModel().
-    %% Singleton de configuración (sin relaciones).
-    FINANCIAL_MODEL {
+
+    EQUIPO_MIEMBRO {
+        string id PK
+        string equipo_id FK "-> EQUIPO_TRABAJO.id"
+        string miembro_id FK "-> EMPRESA_MIEMBRO.id"
+        string rol_en_equipo "lead, dev, qa, designer"
+        datetime fecha_incorporacion
+    }
+
+    PUESTO_ROL {
+        string id PK "slug (desarrollador-sr, qa, pm)"
+        string empresa_id FK "-> EMPRESA.id"
+        string nombre "Nombre descriptivo del puesto"
+    }
+
+    PUESTO_TARIFA {
+        string id PK
+        string puesto_id FK "-> PUESTO_ROL.id"
+        decimal costo_hora "Tarifa estándar por hora"
+        decimal costo_mensual "Tarifa estándar mensual"
+        date valid_from "Inicio vigencia"
+        date valid_to "Fin vigencia"
+    }
+
+    MIEMBRO_TARIFA {
+        string id PK
+        string miembro_id FK "-> EMPRESA_MIEMBRO.id"
+        decimal costo_hora "Pago real por hora (confidencial)"
+        decimal costo_mensual "Pago real mensual (confidencial)"
+        date valid_from
+        date valid_to
+    }
+
+    MODELO_FINANCIERO {
+        string empresa_id PK "-> EMPRESA.id"
         decimal costo_operativo
         decimal valor_experiencia_rate
         decimal costo_admin_rate
         decimal margen_rate
         decimal iva_rate
-        decimal total
+        datetime updated_at
     }
 
-    %% ===================== [SHEETS] ====================
-    CLIENTS {
+    CLIENTE {
+        string id PK "slug o cuid"
+        string empresa_id FK "-> EMPRESA.id"
+        string nombre "Nombre comercial normalizado"
+        string cuenta "Agrupador comercial"
+        string contacto_email
+        boolean activo
+    }
+
+    PROYECTO {
+        string id PK "cuid / uuid"
+        string folio UK "Llave natural visible en URLs (ej: PRJ-001)"
+        string empresa_id FK "-> EMPRESA.id (empresa titular)"
+        string cliente_id FK "-> CLIENTE.id"
+        string numero "# correlativo"
+        string actividad "Nombre del proyecto"
+        string salud "en_riesgo, critico, saludable"
+        string accion_requerida
+        date fecha_accion
+        decimal progreso "0.0 a 1.0"
+        string tipo "App, Core, Consultoria"
+        string prioridad "Alta, Media, Baja"
+        string epica
+        string hito
+        string cuenta
+        integer puntos "Story points totales"
+        string estatus "Activo, En Pausa, Concluido, Cancelado"
+        date fecha_registro
+        date fecha_inicio
+        date fin_estimado
+        date fin_real
+        string url "Enlace externo (Figma, Jira, Docs)"
+        datetime created_at
+        datetime updated_at
+    }
+
+    PROYECTO_EQUIPO {
         string id PK
-        string name UK "Normaliza 'vortex-it' vs 'Vortex IT'"
-        string cuenta "Agrupador comercial (opcional)"
+        string proyecto_id FK "-> PROYECTO.id"
+        string equipo_id FK "-> EQUIPO_TRABAJO.id (puede ser de otra empresa)"
+        decimal dedicacion_pct "Porcentaje de asignación del equipo (0..100)"
+        date fecha_inicio
+        date fecha_fin
     }
-    PROJECTS {
-        string  id PK
-        string  numero "# correlativo"
-        string  folio UK "Llave natural — usada en URLs (slugs.ts)"
-        string  actividad "Nombre del proyecto"
-        string  cliente_id FK "-> CLIENTS.id"
-        string  arquitecto_id FK "-> EQUIPO.id"
-        string  pm_id FK "-> EQUIPO.id"
-        string  salud
-        string  accion_requerida
-        date    fecha_accion
-        decimal progreso "0..1"
-        string  tipo
-        string  prioridad
-        string  epica
-        string  hito
-        string  cuenta
-        integer puntos
-        string  estatus
-        date    fecha_registro
-        date    fecha_inicio
-        date    fin_estimado
-        date    fin_real
-        string  url
+
+    PROYECTO_MIEMBRO {
+        string id PK
+        string proyecto_id FK "-> PROYECTO.id"
+        string miembro_id FK "-> EMPRESA_MIEMBRO.id"
+        string rol_proyecto "pm, arquitecto, tech-lead, developer, qa, ux"
+        decimal dedicacion_pct "Porcentaje de dedicación individual"
+        boolean activo
     }
-    %% Normaliza el CSV libre `requiere de` actual
-    PROJECT_DEPENDENCIES {
-        string project_folio FK "-> PROJECTS.folio"
-        string depends_on_folio FK "-> PROJECTS.folio"
+
+    PROYECTO_DEPENDENCIA {
+        string id PK
+        string proyecto_id FK "-> PROYECTO.id"
+        string depends_on_proyecto_id FK "-> PROYECTO.id"
+        string tipo_bloqueo "bloqueante, opcional"
     }
-    PROJECT_DEVELOPERS {
-        string  project_folio FK "-> PROJECTS.folio"
-        string  developer_id FK "-> EQUIPO.id"
-        decimal allocation_pct "Opcional: % de dedicación"
-    }
-    SPRINTS {
-        string  id PK "OPCIONAL/NUEVO — no hay dato hoy"
-        string  name "e.g. Sprint 1, Enero 2024"
-        integer year
+
+    SPRINT {
+        string id PK
+        string proyecto_id FK "-> PROYECTO.id"
+        string nombre "Nombre (Sprint 1, Enero 2026)"
+        integer anio
         integer quarter "1..4"
-        integer month "1..12"
-        date    start_date
-        date    end_date
+        integer mes "1..12"
+        date fecha_inicio
+        date fecha_fin
+        string estatus "planeado, activo, cerrado"
     }
-    %% Unifica pestañas `app` + `Core`. CIERRA el hueco actual:
-    %% hoy las tareas NO ligan a su proyecto.
-    TASKS {
-        string  id PK
-        string  project_folio FK "-> PROJECTS.folio (NUEVO, obligatorio)"
-        string  sprint_id FK "-> SPRINTS.id (nullable)"
-        string  producto "Discriminador: App | Core"
+
+    TAREA {
+        string id PK
+        string proyecto_id FK "-> PROYECTO.id"
+        string sprint_id FK "-> SPRINT.id"
+        string producto "App | Core"
         integer orden
-        string  funcionalidad
-        string  nombre
-        string  descripcion
-        string  tipo
-        string  asignado_id FK "-> EQUIPO.id"
-        string  estatus
-        date    fecha_inicio
-        date    fecha_fin
-        decimal tiempo_et "solo App"
-        decimal estimacion "solo App (= story points)"
-        decimal puntos "Core: pts | App: estimacion"
+        string funcionalidad
+        string nombre
+        string descripcion
+        string tipo "Historia, Bug, Tarea, Spike"
+        string asignado_miembro_id FK "-> EMPRESA_MIEMBRO.id"
+        string estatus "Por hacer, En progreso, En revision, Hecho"
+        date fecha_inicio
+        date fecha_fin
+        decimal tiempo_et "Tiempo estimado en horas"
+        decimal estimacion "Story points estimados"
+        decimal puntos "Puntos reales completados"
     }
-    %% 1 fila por persona con progreso AGREGADO (no catálogo de cursos)
-    COURSE_PROGRESS {
-        string  equipo_id PK "-> EQUIPO.id"
+
+    CURSO_PROGRESO {
+        string id PK
+        string miembro_id FK "-> EMPRESA_MIEMBRO.id"
+        string curso_nombre
         integer pids_creados
-        decimal progreso "0..100"
+        decimal progreso "0.0 a 100.0"
+        datetime fecha_actualizacion
+    }
+
+    PROYECTO_REPOSITORIO {
+        string id PK
+        string proyecto_id FK "-> PROYECTO.id"
+        string url
+        string nombre
+        string tecnologia_principal
+    }
+
+    TECNOLOGIA {
+        string id PK "slug (react, typescript, etc.)"
+        string name "Nombre legible"
+        string category "language, framework, database, devops, etc."
+        boolean active
+    }
+
+    MIEMBRO_TECNOLOGIA {
+        integer id PK
+        string miembro_id FK "-> EMPRESA_MIEMBRO.id"
+        string tecnologia_id FK "-> TECNOLOGIA.id"
+        string level "trainee, jr, mid, sr, arq"
+        datetime updated_at
+    }
+
+    EVALUACION {
+        integer id PK
+        string miembro_id FK "-> EMPRESA_MIEMBRO.id"
+        string periodo "2026-Q1"
+        integer actitud
+        integer aptitudes
+        integer comunicacion
+        integer velocidad
+        integer analisis
+        integer calidad
+        integer autogestion
+        string notas
+        datetime created_at
+        datetime updated_at
     }
 ```
 
-## Alcance del diagrama
+---
 
-Este diagrama modela el **dominio de negocio**, no el esquema físico completo.
+## 3. Catálogo de entidades
 
-**Estado de implementación:** `ROLES` (17 filas), `EQUIPO` (con campo `title`), `EQUIPO_RATES` y la columna `USER.equipoId` ya están en código (`src/db/migrations/2026-equipo.sql` + `src/db/migrations/2026-equipo-title.sql` + `src/db/auth-schema.sql`); el resto es propuesta. La migración del modelo financiero (`ROLE_RATES`, `FINANCIAL_MODEL`) a Turso es **incremental** — la hoja Costos sigue viva hasta completarla.
+### 3.1 Identidad y organizaciones
 
-**Pendiente de modelar:** la hoja Costos también tiene `Recursos`/`Horas/recurso`/`Horas` por puesto, que **no son tarifas** sino supuestos de capacidad/presupuesto. Su hogar (tabla aparte vs atributos de planeación) se decide al migrar esa hoja — fuera de `ROLE_RATES` a propósito.
+| Entidad | Tabla en Turso | Descripción | Llave Primaria |
+|---|---|---|---|
+| Empresa | `empresa` | Organización independiente (`vortex-it`, `bit-technologies`) | `id` (text slug) |
+| Usuario | `user` | Cuenta global de login administrada por Better-Auth | `id` (text) |
+| Miembro de Empresa | `empresa_miembro` | Registro de la persona adscrita a una empresa | `id` (text) |
+| Departamento | `departamento` | Área funcional dentro de una empresa | `id` (text) |
+| Equipo de Trabajo | `equipo_trabajo` | Squad o equipo multidisciplinario | `id` (text) |
+| Miembro de Equipo | `equipo_miembro` | Pertenencia de un colaborador a un squad (N:M) | `id` (text) |
 
-Tablas de Turso que **existen y se mantienen** pero se omiten por ser infraestructura/estado, no modelo de negocio:
+### 3.2 Proyectos y ejecución
+
+| Entidad | Tabla en Turso | Descripción | Llave Primaria |
+|---|---|---|---|
+| Cliente | `cliente` | Cliente atendido por una empresa | `id` (text) |
+| Proyecto | `proyecto` | Iniciativa o proyecto del portafolio | `id` (text uuid/cuid) |
+| Equipo de Proyecto | `proyecto_equipo` | Squads de diversas empresas asignados al proyecto | `id` (text) |
+| Miembro de Proyecto | `proyecto_miembro` | Asignación directa de roles (PM, Arquitecto, Dev) | `id` (text) |
+| Dependencia | `proyecto_dependencia` | Relación de bloqueo entre proyectos | `id` (text) |
+| Sprint | `sprint` | Iteración temporal de entrega | `id` (text) |
+| Tarea | `tarea` | Ítem de trabajo (App / Core) | `id` (text) |
+| Repositorio | `proyecto_repositorio` | Enlaces a código fuente asociados al proyecto | `id` (text) |
+
+### 3.3 Finanzas y capacidades
+
+| Entidad | Tabla en Turso | Descripción | Llave Primaria |
+|---|---|---|---|
+| Puesto | `puesto_rol` | Catálogo de puestos por empresa | `id` (text slug) |
+| Tarifa de Puesto | `puesto_tarifa` | Costo estándar por puesto e histórico | `id` (text) |
+| Tarifa de Miembro | `miembro_tarifa` | Pago real por persona e histórico | `id` (text) |
+| Modelo Financiero | `modelo_financiero` | Factores de pricing por empresa | `empresa_id` (text) |
+| Progreso Cursos | `curso_progreso` | Avance agregado de cursos formativos | `id` (text) |
+| Evaluación | `evaluacion` | Auto-evaluación periódica de desempeño | `id` (integer) |
+| Tecnología | `technology` | Catálogo centralizado de skills | `id` (text) |
+| Skill de Miembro | `equipo_technology` | Dominio técnico por colaborador | `id` (integer) |
+
+---
+
+## 4. Tablas de infraestructura y estado
+
+Las siguientes tablas operan en Turso para fines de sesión, seguridad y métricas del sistema, manteniéndose fuera del modelo de negocio directo:
 
 | Tabla | Propósito | Owner |
 |---|---|---|
-| `session` | Sesiones activas (FK → `user.id`) | Better-Auth |
-| `account` | Credenciales / vínculos OAuth (FK → `user.id`) | Better-Auth |
-| `verification` | Tokens de verificación de email | Better-Auth |
-| `rateLimit` | Rate limiting de auth | Better-Auth |
-| `user_preferences` | Filtros/toggles por sección, por usuario (FK → `user.id`) | App — ver `/api/user-preferences` |
-| `user_permission_override` | Overrides tri-estado de permisos (FK → `user.id`) | Sistema de roles/permisos (F4) |
-| `snapshots` | Histórico semanal escrito por el cron (no editado por humanos) | App — migra de Sheets a Turso |
-| `nexus_request` | Cache permanente de peticiones al servicio de IA Nexus (NAV-85). PK: `ulid`. Ver [api/cs360-analyze.md](../api/cs360-analyze.md) | App — CS 360 |
+| `session` | Sesiones activas de usuarios (FK -> `user.id`) | Better-Auth |
+| `account` | Credenciales y vínculos OAuth (FK -> `user.id`) | Better-Auth |
+| `verification` | Tokens de verificación de correo | Better-Auth |
+| `rateLimit` | Limitador de peticiones de autenticación | Better-Auth |
+| `user_preferences` | Preferencias y filtros por sección (FK -> `user.id`) | App ([src/pages/api/user-preferences.ts](../../../src/pages/api/user-preferences.ts)) |
+| `user_permission_override` | Permisos específicos y excepciones (FK -> `user.id`) | App ([src/lib/permissions/](../../../src/lib/permissions/)) |
+| `snapshot` | Captura semanal histórica para pronósticos | App ([src/pages/api/snapshots.ts](../../../src/pages/api/snapshots.ts)) |
+| `mcp_token` | Tokens de acceso para el servidor MCP | App ([src/lib/mcpToken.ts](../../../src/lib/mcpToken.ts)) |
+| `nexus_request` | Peticiones asíncronas y caché de IA Nexus | App ([src/lib/nexus.ts](../../../src/lib/nexus.ts)) |
 
-Para el esquema físico exacto ver [src/db/auth-schema.sql](../../../src/db/auth-schema.sql).
+---
+
+## 5. Estrategia de migración y dependencias
+
+1. **Semillas de empresas**:
+   - `vortex-it`: Recibe el conjunto actual de colaboradores (`equipo`), proyectos, clientes y tareas de la hoja actual.
+   - `bit-technologies`: Se inicializa como empresa hermana independiente con su propio catálogo de departamentos y equipos.
+2. **Mantenimiento de dependencias con Google Sheets**:
+   - Las lecturas operativas hacia Google Sheets continuarán en funcionamiento durante la fase de transición.
+   - En particular, la lectura de la hoja `Repositorios` y las fuentes operativas de proyectos continuarán activas hasta que los repositorios y la totalidad de los datos existan y hayan sido verificados en Turso.

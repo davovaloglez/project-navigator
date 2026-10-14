@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { LayoutDashboard, FolderKanban, BookOpen, Users, Bell, FileText, CalendarRange, Map, PieChart, DollarSign, ListChecks, Sparkles, TrendingUp, MoreHorizontal, X, HelpCircle, ShieldCheck, Star, HeartPulse, ExternalLink, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
+import { LayoutDashboard, FolderKanban, BookOpen, Users, Bell, FileText, CalendarRange, Map, PieChart, DollarSign, ListChecks, Sparkles, TrendingUp, MoreHorizontal, X, HelpCircle, ShieldCheck, Star, HeartPulse, ExternalLink, PanelLeftClose, PanelLeftOpen, GitBranch, ChevronDown, Building2 } from 'lucide-react';
 import UserMenu from '../auth/UserMenu';
 
 const allNavItems = [
@@ -14,6 +14,7 @@ const allNavItems = [
   { href: '/costos', label: 'Costos', icon: DollarSign, pageKey: 'costos' },
   { href: '/distribucion', label: 'Puntos', icon: PieChart, pageKey: 'distribucion' },
   { href: '/equipo', label: 'Equipo', icon: Users, pageKey: 'equipo' },
+  { href: '/repositorios', label: 'Repositorios', icon: GitBranch, pageKey: 'repositorios' },
   { href: '/comparativa', label: 'Comparativa', icon: Star, pageKey: 'comparativa' },
   { href: '/cursos', label: 'Cursos', icon: BookOpen, pageKey: 'cursos' },
   { href: '/novedades', label: 'Novedades', icon: Sparkles, pageKey: 'novedades' },
@@ -34,6 +35,10 @@ interface SidebarProps {
   user: { name: string; email: string; image?: string | null } | null;
   /** page-keys permitidas (de getEffectivePermissions). Si no se pasa, se muestran todas (no rompe usos previos). */
   allowedPages?: string[];
+  /** Empresa activa del usuario (de Astro.locals). */
+  activeEmpresa?: string | null;
+  /** Si el usuario es superadministrador. */
+  isSuperadmin?: boolean;
 }
 
 // El estado colapsado vive como clase `sidebar-collapsed` en <html> (aplicada
@@ -51,7 +56,93 @@ function toggleCollapsed() {
   }
 }
 
-export default function Sidebar({ currentPath, user, allowedPages }: SidebarProps) {
+/** Etiquetas de display para las empresas conocidas. Extender cuando haya más. */
+const EMPRESA_LABELS: Record<string, string> = {
+  'vortex-it': 'Vortex IT',
+  'bit-technologies': 'Bit Technologies',
+};
+
+/**
+ * Company Switcher: dropdown debajo del título que persiste la empresa activa
+ * en la cookie `pn_active_empresa` vía POST /api/me/active-empresa.
+ */
+function CompanySwitcher({ activeEmpresa, isSuperadmin }: { activeEmpresa?: string | null; isSuperadmin?: boolean }) {
+  const [open, setOpen] = useState(false);
+  const [switching, setSwitching] = useState(false);
+
+  const empresas = Object.entries(EMPRESA_LABELS);
+  const activeLabel = activeEmpresa
+    ? (EMPRESA_LABELS[activeEmpresa] ?? activeEmpresa)
+    : 'Todas las empresas';
+
+  async function handleSwitch(empresaId: string | null) {
+    if (empresaId === activeEmpresa) { setOpen(false); return; }
+    setSwitching(true);
+    try {
+      await fetch('/api/me/active-empresa', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ empresaId }),
+      });
+      // Recargar la página para que el middleware re-evalúe la cookie.
+      window.location.reload();
+    } catch {
+      setSwitching(false);
+    }
+  }
+
+  return (
+    <div className="relative sidebar-mini:hidden">
+      <button
+        onClick={() => setOpen((p) => !p)}
+        disabled={switching}
+        className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-300 transition-colors mt-0.5 w-full group"
+        title="Cambiar empresa activa"
+      >
+        <Building2 className="w-3 h-3 shrink-0" />
+        <span className="truncate">{switching ? 'Cambiando…' : activeLabel}</span>
+        <ChevronDown className={`w-3 h-3 ml-auto transition-transform ${open ? 'rotate-180' : ''}`} />
+      </button>
+      {open && (
+        <>
+          <div className="fixed inset-0 z-50" onClick={() => setOpen(false)} />
+          <div className="absolute top-full mt-1 left-0 z-50 w-52 bg-slate-800 border border-slate-700 rounded-xl shadow-2xl py-1">
+            {empresas.map(([id, label]) => (
+              <button
+                key={id}
+                onClick={() => { setOpen(false); handleSwitch(id); }}
+                className={`w-full text-left px-3 py-2 text-sm transition-colors ${
+                  activeEmpresa === id
+                    ? 'text-blue-300 bg-blue-500/10'
+                    : 'text-slate-300 hover:bg-slate-700 hover:text-white'
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+            {isSuperadmin && (
+              <>
+                <div className="border-t border-slate-700 my-1" />
+                <button
+                  onClick={() => { setOpen(false); handleSwitch(null); }}
+                  className={`w-full text-left px-3 py-2 text-sm transition-colors ${
+                    !activeEmpresa
+                      ? 'text-amber-300 bg-amber-500/10'
+                      : 'text-slate-400 hover:bg-slate-700 hover:text-white'
+                  }`}
+                >
+                  🌐 Todas las empresas
+                </button>
+              </>
+            )}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+export default function Sidebar({ currentPath, user, allowedPages, activeEmpresa, isSuperadmin }: SidebarProps) {
   const [moreOpen, setMoreOpen] = useState(false);
 
   const navItems = useMemo(
@@ -74,7 +165,7 @@ export default function Sidebar({ currentPath, user, allowedPages }: SidebarProp
         <div className="p-5 sidebar-mini:p-3 border-b border-slate-800 flex items-center justify-between sidebar-mini:justify-center gap-2">
           <div className="min-w-0 sidebar-mini:hidden">
             <h1 className="text-lg font-bold text-white tracking-tight">Project Navigator</h1>
-            <p className="text-xs text-slate-500 mt-0.5">Vortex IT</p>
+            <CompanySwitcher activeEmpresa={activeEmpresa} isSuperadmin={isSuperadmin} />
           </div>
           <button
             onClick={toggleCollapsed}

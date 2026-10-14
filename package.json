@@ -17,6 +17,7 @@
     "cs360:upload": "tsx --env-file=.env scripts/uploadCs360Export.ts",
     "auth:generate": "better-auth generate --output ./src/db/auth-schema.sql --y",
     "db:init": "tsx --env-file=.env scripts/initTursoDb.ts",
+    "migrate:sheets": "tsx --env-file=.env scripts/migrateSheetsToTurso.ts",
     "docs:validate": "tsx scripts/validateDocs.ts",
     "check": "astro check",
     "test": "vitest run",

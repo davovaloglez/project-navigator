@@ -1,0 +1,12 @@
+---
+import Layout from '../layouts/Layout.astro';
+import RepositoriosSection from '../components/sections/RepositoriosSection';
+---
+
+<Layout title="Repositorios">
+  <RepositoriosSection
+    client:load
+    isSuperadmin={Astro.locals.isSuperadmin}
+    activeEmpresa={Astro.locals.activeEmpresa}
+  />
+</Layout>

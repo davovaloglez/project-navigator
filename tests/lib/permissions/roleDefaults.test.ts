@@ -144,7 +144,23 @@ describe('roleCan() — block resources (default-ALLOW)', () => {
 
 describe('roleCan() — unknown role', () => {
   it('unknown role returns false for page access', () => {
-    expect(roleCan('superadmin', 'page:dashboard')).toBe(false);
+    expect(roleCan('unknown-role', 'page:dashboard')).toBe(false);
+  });
+});
+
+describe('roleCan() — superadmin role', () => {
+  it('superadmin can access all pages including admin', () => {
+    expect(roleCan('superadmin', 'page:dashboard')).toBe(true);
+    expect(roleCan('superadmin', 'page:admin')).toBe(true);
+    expect(roleCan('superadmin', 'page:repositorios')).toBe(true);
+  });
+  it('superadmin can access sensitive data', () => {
+    expect(roleCan('superadmin', 'data:costos')).toBe(true);
+  });
+  it('superadmin can perform all actions', () => {
+    expect(roleCan('superadmin', 'action:user:manage')).toBe(true);
+    expect(roleCan('superadmin', 'action:repositorio:manage')).toBe(true);
+    expect(roleCan('superadmin', 'action:empresa:manage')).toBe(true);
   });
 });
 

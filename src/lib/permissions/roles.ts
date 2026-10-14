@@ -21,10 +21,35 @@ const NON_ADMIN_PAGES = ALL_PAGES.filter(
 );
 
 export const roles = {
+  superadmin: ac.newRole({
+    page: [...ALL_PAGES],
+    data: ['costos'],
+    action: [
+      'snapshot:create',
+      'user:manage',
+      'equipo:manage',
+      'evaluacion:view-all',
+      'evaluacion:manage',
+      'tecnologia:manage',
+      'repositorio:manage',
+      'empresa:manage',
+    ],
+    user: ['create', 'list', 'set-role', 'ban', 'impersonate', 'delete', 'set-password', 'get', 'update'],
+    session: ['list', 'revoke', 'delete'],
+  }),
   admin: ac.newRole({
     page: [...ALL_PAGES],
     data: ['costos'],
-    action: ['snapshot:create', 'user:manage', 'equipo:manage', 'evaluacion:view-all', 'evaluacion:manage', 'tecnologia:manage'],
+    action: [
+      'snapshot:create',
+      'user:manage',
+      'equipo:manage',
+      'evaluacion:view-all',
+      'evaluacion:manage',
+      'tecnologia:manage',
+      'repositorio:manage',
+      'empresa:manage',
+    ],
     user: ['create', 'list', 'set-role', 'ban', 'impersonate', 'delete', 'set-password', 'get', 'update'],
     session: ['list', 'revoke', 'delete'],
   }),
@@ -42,7 +67,7 @@ export const roles = {
     action: ['snapshot:create'],
   }),
   dev: ac.newRole({
-    page: ['dashboard', 'portafolio', 'roadmap', 'timeline', 'cronograma', 'metricas-dev', 'glosario'],
+    page: ['dashboard', 'portafolio', 'roadmap', 'timeline', 'cronograma', 'repositorios', 'metricas-dev', 'glosario'],
   }),
   ventas: ac.newRole({
     page: ['dashboard', 'resumen', 'portafolio', 'distribucion', 'glosario'],
@@ -57,7 +82,7 @@ export const ROLE_NAMES = Object.keys(roles) as RoleName[];
 export const DEFAULT_ROLE: RoleName = 'dev';
 
 /** Roles considerados administradores por el admin plugin de Better-Auth. */
-export const ADMIN_ROLES: string[] = ['admin'];
+export const ADMIN_ROLES: string[] = ['admin', 'superadmin'];
 
 /**
  * Deny de bloques por rol (DISPERSO). Modelo default-ALLOW: un bloque se ve

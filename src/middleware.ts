@@ -44,8 +44,10 @@ const API_PAGE_GATES: Record<string, string[]> = {
     // Ampliamente usado para resolución de nombres + avatars.
     'dashboard', 'resumen', 'alertas', 'portafolio', 'roadmap', 'timeline',
     'cronograma', 'pronosticos', 'distribucion', 'costos', 'equipo', 'metricas-dev',
+    'repositorios',
   ],
-  '/api/repositorios': ['equipo'], // sólo /persona/[id] Accesos tab
+  // /api/repositorios ahora es consumido tanto por /persona/[id] como por /repositorios.
+  '/api/repositorios': ['equipo', 'repositorios'],
   '/api/hitos': ['roadmap', 'pronosticos', 'portafolio'],
   '/api/capacidades': ['equipo', 'pronosticos'],
   '/api/sprints': ['equipo', 'cronograma'],
@@ -77,6 +79,7 @@ const PAGE_KEY_BY_SEGMENT: Record<string, string> = {
   '/novedades': 'novedades',
   '/glosario': 'glosario',
   '/metricas-dev': 'metricas-dev',
+  '/repositorios': 'repositorios',
   '/cs360': 'cs360',
   '/admin': 'admin',
   // Páginas de detalle heredan la page-key de su sección padre.
@@ -110,6 +113,7 @@ const SIDEBAR_PAGE_ORDER: ReadonlyArray<readonly [string, string]> = [
   ['/cursos', 'cursos'],
   ['/novedades', 'novedades'],
   ['/glosario', 'glosario'],
+  ['/repositorios', 'repositorios'],
   ['/admin', 'admin'],
 ];
 
@@ -265,6 +269,23 @@ const handleRequest = async (context: APIContext, next: MiddlewareNext): Promise
       return context.redirect('/');
     }
 
+    // ── Gobernanza multi-empresa ──────────────────────────────────────────
+    // El superadmin puede ver todas las empresas (activeEmpresa = null).
+    // Los demás usuarios tienen la empresa activa fijada en la cookie
+    // `pn_active_empresa`. Si la cookie es inválida o no existe, se omite
+    // (los endpoints y páginas usarán la primera empresa disponible o todas).
+    const isSuperadmin = user.role === 'superadmin';
+    context.locals.isSuperadmin = isSuperadmin;
+    const cookieEmpresa = context.cookies.get('pn_active_empresa')?.value ?? null;
+    // Por ahora no validamos membresía en BD (Fase 2); aceptamos cualquier
+    // valor de cookie no vacío. La validación fina ocurrirá en la capa de
+    // datos cuando los endpoints filtren por empresa_miembro.
+    context.locals.activeEmpresa = isSuperadmin && !cookieEmpresa ? null : (cookieEmpresa || 'vortex-it');
+    // userEmpresas se populará cuando la capa Turso multi-empresa esté activa.
+    // Por ahora se expone como array vacío para no bloquear los componentes.
+    context.locals.userEmpresas = [];
+    // ─────────────────────────────────────────────────────────────────────
+
     // Una sola resolución (rol + overrides) por request, cacheada por usuario.
     const perms = await getEffectivePermissions(user);
 
@@ -299,6 +320,9 @@ const handleRequest = async (context: APIContext, next: MiddlewareNext): Promise
         // es Fase 2; este gate reserva la ruta para que Phase 2 se agregue
         // sin tocar el middleware.
         if (!evaluate(perms, 'action:tecnologia:manage')) return forbiddenJson();
+      } else if (pathname.startsWith('/api/admin/empresas')) {
+        // Gestión de empresas: sólo superadmin y admin del sistema.
+        if (!evaluate(perms, 'action:empresa:manage')) return forbiddenJson();
       } else if (pathname.startsWith('/api/admin/') && !evaluate(perms, 'action:user:manage')) {
         return forbiddenJson();
       }
