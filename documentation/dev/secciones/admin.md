@@ -28,19 +28,31 @@ Módulo de administración de usuarios y permisos. Accesible únicamente para us
 | `AdminUserSection` | `PUT /api/admin/overrides` | Upsert de un override |
 | `AdminUserSection` | `DELETE /api/admin/overrides?userId=&resource=` | Borra un override |
 
+| `AdminSection` | `GET /api/admin/empresas` | Lista organizaciones y métricas consolidadas (Tab Empresas) |
+| `AdminSection` | `POST /api/admin/empresas` | Da de alta una nueva empresa (Tab Empresas) |
+| `AdminSection` | `PUT /api/admin/empresas` | Actualiza datos y activación de una empresa (Tab Empresas) |
+
 ## Composición de AdminSection
 
 ```
 AdminSection
-├── CreateUserBlock   — formulario email + nombre + password + rol
-└── UserList
-    ├── buscador (local, no persiste)
-    └── UserCard[]  → link a /admin/[id]
+├── Tabs (Usuarios | Empresas) — visible para superadmin / admin con action:empresa:manage
+├── Tab Usuarios:
+│   ├── CreateUserBlock   — formulario email + nombre + password + rol
+│   └── UserList
+│       ├── buscador (local, no persiste)
+│       └── UserCard[]  → link a /admin/[id]
+└── Tab Empresas:
+    ├── Botón "Nueva Empresa" → EmpresaModal (creación)
+    └── Grid de Empresas:
+        └── Card de Empresa (ID, logo, estatus, miembros, proyectos, dptos) + botón Editar → EmpresaModal
 ```
 
 `UserCard` muestra avatar (foto o iniciales), email, badge de rol y badge Activo/Desactivado. El componente `Avatar` es exportado para uso en `AdminUserSection`.
 
 El formulario de creación usa `authClient.admin.createUser` con el rol seleccionado desde `ROLE_NAMES` (`src/lib/permissions/roles.ts`). Los errores del admin plugin se traducen al español con `translateAuthError`.
+
+El Tab Empresas consume `/api/admin/empresas` y permite a los administradores registrar y configurar organizaciones para el ecosistema multi-empresa.
 
 ## Composición de AdminUserSection
 

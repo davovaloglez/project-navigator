@@ -25,6 +25,8 @@ Los endpoints autenticados pueden leer la sesión vía `Astro.locals.user` y `As
 | `GET /api/costos`, `GET /api/costos-modelo` | `data:costos` |
 | `POST /api/snapshots` | `action:snapshot:create` |
 | `POST/PUT /api/admin/equipo` | `action:equipo:manage` |
+| `GET/POST/PUT /api/admin/empresas` | `action:empresa:manage` |
+| `POST/PUT/DELETE /api/admin/repositorios` | `action:repositorio:manage` |
 | `POST/DELETE /api/admin/avatar` | `action:user:manage` |
 | `GET/PUT/DELETE /api/admin/overrides` | `action:user:manage` |
 | `GET /api/evaluaciones` | `action:evaluacion:view-all` |

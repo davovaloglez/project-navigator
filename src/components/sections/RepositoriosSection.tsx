@@ -16,6 +16,7 @@ import {
   Loader2,
   ChevronDown,
   Edit2,
+  Trash2,
 } from 'lucide-react';
 import Header from '../layout/Header';
 import type { RepoRecord } from '../../utils/dataTransforms';
@@ -30,12 +31,15 @@ interface Colaborador {
 }
 
 interface RepoEnriquecido extends RepoRecord {
+  id?: string;
+  empresa_id?: string;
   colaboradores: Colaborador[];
 }
 
 interface Props {
   isSuperadmin?: boolean;
   activeEmpresa?: string | null;
+  canManage?: boolean;
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -125,7 +129,17 @@ function AmbientesChips({ ambientes }: { ambientes: string }) {
 
 // ─── Card de repositorio ───────────────────────────────────────────────────────
 
-function RepoCard({ repo, canManage }: { repo: RepoEnriquecido; canManage: boolean }) {
+function RepoCard({
+  repo,
+  canManage,
+  onEdit,
+  onDelete,
+}: {
+  repo: RepoEnriquecido;
+  canManage: boolean;
+  onEdit?: (repo: RepoEnriquecido) => void;
+  onDelete?: (repo: RepoEnriquecido) => void;
+}) {
   const [expanded, setExpanded] = useState(false);
 
   const visibleCollabs = expanded ? repo.colaboradores : repo.colaboradores.slice(0, 5);
@@ -159,7 +173,7 @@ function RepoCard({ repo, canManage }: { repo: RepoEnriquecido; canManage: boole
         <div className="flex items-center gap-1.5 shrink-0">
           {repo.github && (
             <a
-              href={repo.github}
+              href={repo.github.startsWith('http') ? repo.github : `https://github.com/${repo.github}`}
               target="_blank"
               rel="noopener noreferrer"
               className="p-1.5 rounded-lg text-slate-500 hover:text-white hover:bg-slate-800 transition-colors"
@@ -169,12 +183,22 @@ function RepoCard({ repo, canManage }: { repo: RepoEnriquecido; canManage: boole
             </a>
           )}
           {canManage && (
-            <button
-              className="p-1.5 rounded-lg text-slate-500 hover:text-white hover:bg-slate-800 transition-colors opacity-0 group-hover:opacity-100"
-              title="Editar repositorio"
-            >
-              <Edit2 className="w-3.5 h-3.5" />
-            </button>
+            <>
+              <button
+                onClick={() => onEdit?.(repo)}
+                className="p-1.5 rounded-lg text-slate-500 hover:text-white hover:bg-slate-800 transition-colors opacity-0 group-hover:opacity-100"
+                title="Editar repositorio"
+              >
+                <Edit2 className="w-3.5 h-3.5" />
+              </button>
+              <button
+                onClick={() => onDelete?.(repo)}
+                className="p-1.5 rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-colors opacity-0 group-hover:opacity-100"
+                title="Eliminar repositorio"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+              </button>
+            </>
           )}
         </div>
       </div>
@@ -269,9 +293,253 @@ function FilterDropdown({
   );
 }
 
+function RepositorioModal({
+  repo,
+  activeEmpresa,
+  onClose,
+  onSaved,
+}: {
+  repo: RepoEnriquecido | null;
+  activeEmpresa?: string | null;
+  onClose: () => void;
+  onSaved: () => void;
+}) {
+  const isEditing = Boolean(repo);
+  const [nombre, setNombre] = useState(repo?.nombre ?? '');
+  const [url, setUrl] = useState(repo?.github ?? '');
+  const [ambientes, setAmbientes] = useState(repo?.ambientes ?? 'Prod');
+  const [estatus, setEstatus] = useState(repo?.estatus ?? 'Activo');
+  const [dpto, setDpto] = useState(repo?.dpto ?? '');
+  const [producto, setProducto] = useState(repo?.producto ?? '');
+  const [adminColabs, setAdminColabs] = useState(repo?.administrador ?? '');
+  const [arqColabs, setArqColabs] = useState(repo?.arquitecto ?? '');
+  const [colabColabs, setColabColabs] = useState(repo?.colaborador ?? '');
+  const [visColabs, setVisColabs] = useState(repo?.visualizador ?? '');
+  const [deployColabs, setDeployColabs] = useState(repo?.deploy ?? '');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!nombre.trim()) {
+      setError('El nombre del repositorio es obligatorio.');
+      return;
+    }
+    setLoading(true);
+    setError(null);
+
+    const parseColabs = (str: string, rol: RolAcceso) =>
+      str
+        .split(/[,;\n]+/)
+        .map((s) => s.trim())
+        .filter(Boolean)
+        .map((nombre) => ({ miembroIdOrName: nombre, rol }));
+
+    const colaboradores = [
+      ...parseColabs(adminColabs, 'administrador'),
+      ...parseColabs(arqColabs, 'arquitecto'),
+      ...parseColabs(colabColabs, 'colaborador'),
+      ...parseColabs(visColabs, 'visualizador'),
+      ...parseColabs(deployColabs, 'deploy'),
+    ];
+
+    try {
+      const res = await fetch('/api/admin/repositorios', {
+        method: isEditing ? 'PUT' : 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: repo?.id || repo?.nombre,
+          nombre: nombre.trim(),
+          url: url.trim(),
+          ambientes: ambientes.trim(),
+          estatus,
+          dpto: dpto.trim(),
+          producto: producto.trim(),
+          empresaId: activeEmpresa || repo?.empresa_id || 'vortex-it',
+          colaboradores,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Error al guardar el repositorio.');
+      onSaved();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error inesperado.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+      <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-lg p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
+        <h3 className="text-lg font-bold text-white mb-4">
+          {isEditing ? 'Editar Repositorio' : 'Nuevo Repositorio'}
+        </h3>
+        {error && (
+          <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-xs">
+            {error}
+          </div>
+        )}
+        <form onSubmit={handleSubmit} className="space-y-4 text-xs">
+          <div>
+            <label className="block font-medium text-slate-400 mb-1">Nombre del Repositorio *</label>
+            <input
+              type="text"
+              value={nombre}
+              onChange={(e) => setNombre(e.target.value)}
+              placeholder="e.g. portal-web"
+              className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-blue-500"
+              required
+            />
+          </div>
+          <div>
+            <label className="block font-medium text-slate-400 mb-1">URL / Slug de GitHub</label>
+            <input
+              type="text"
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              placeholder="e.g. https://github.com/org/repo o org/repo"
+              className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-blue-500"
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block font-medium text-slate-400 mb-1">Ambientes</label>
+              <input
+                type="text"
+                value={ambientes}
+                onChange={(e) => setAmbientes(e.target.value)}
+                placeholder="e.g. Dev, Staging, Prod"
+                className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block font-medium text-slate-400 mb-1">Estatus</label>
+              <select
+                value={estatus}
+                onChange={(e) => setEstatus(e.target.value)}
+                className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-blue-500"
+              >
+                <option value="Activo">Activo</option>
+                <option value="Archivado">Archivado</option>
+                <option value="En Pausa">En Pausa</option>
+              </select>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block font-medium text-slate-400 mb-1">Departamento / Área</label>
+              <input
+                type="text"
+                value={dpto}
+                onChange={(e) => setDpto(e.target.value)}
+                placeholder="e.g. Academic, I+D"
+                className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block font-medium text-slate-400 mb-1">Producto</label>
+              <input
+                type="text"
+                value={producto}
+                onChange={(e) => setProducto(e.target.value)}
+                placeholder="e.g. Academic, Vortex-IT"
+                className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-blue-500"
+              />
+            </div>
+          </div>
+
+          <div className="border-t border-slate-800 pt-3">
+            <h4 className="text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
+              Colaboradores con Acceso (separados por coma o salto de línea)
+            </h4>
+            <div className="space-y-3">
+              <div>
+                <label className="block font-medium text-purple-400 mb-1">Administradores</label>
+                <textarea
+                  rows={1}
+                  value={adminColabs}
+                  onChange={(e) => setAdminColabs(e.target.value)}
+                  placeholder="Jorge Enríquez, ..."
+                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-purple-500"
+                />
+              </div>
+              <div>
+                <label className="block font-medium text-blue-400 mb-1">Arquitectos</label>
+                <textarea
+                  rows={1}
+                  value={arqColabs}
+                  onChange={(e) => setArqColabs(e.target.value)}
+                  placeholder="Edgar Torres, ..."
+                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-blue-500"
+                />
+              </div>
+              <div>
+                <label className="block font-medium text-emerald-400 mb-1">Colaboradores (Devs)</label>
+                <textarea
+                  rows={2}
+                  value={colabColabs}
+                  onChange={(e) => setColabColabs(e.target.value)}
+                  placeholder="Armando Meza, Rafael Escobar, ..."
+                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-medium text-slate-400 mb-1">Visualizadores</label>
+                  <textarea
+                    rows={1}
+                    value={visColabs}
+                    onChange={(e) => setVisColabs(e.target.value)}
+                    placeholder="David González, ..."
+                    className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-slate-500"
+                  />
+                </div>
+                <div>
+                  <label className="block font-medium text-amber-400 mb-1">Deploy</label>
+                  <textarea
+                    rows={1}
+                    value={deployColabs}
+                    onChange={(e) => setDeployColabs(e.target.value)}
+                    placeholder="Edgar Torres, ..."
+                    className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-amber-500"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-800">
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={loading}
+              className="px-4 py-2 rounded-lg text-sm text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium bg-blue-600 hover:bg-blue-500 text-white transition-colors disabled:opacity-50"
+            >
+              {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+              {isEditing ? 'Guardar Cambios' : 'Registrar Repositorio'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 // ─── Sección principal ────────────────────────────────────────────────────────
 
-export default function RepositoriosSection({ isSuperadmin = false, activeEmpresa }: Props) {
+export default function RepositoriosSection({
+  isSuperadmin = false,
+  activeEmpresa,
+  canManage: propCanManage,
+}: Props) {
   const [repos, setRepos] = useState<RepoEnriquecido[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -279,12 +547,14 @@ export default function RepositoriosSection({ isSuperadmin = false, activeEmpres
   const [filterDpto, setFilterDpto] = useState('');
   const [filterColaborador, setFilterColaborador] = useState('');
   const [filterRol, setFilterRol] = useState<RolAcceso | ''>('');
+  const [modalRepo, setModalRepo] = useState<RepoEnriquecido | null | 'new'>(null);
 
   const fetchRepos = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch('/api/repositorios');
+      const query = activeEmpresa ? `?empresa=${encodeURIComponent(activeEmpresa)}` : '';
+      const res = await fetch(`/api/repositorios${query}`);
       if (!res.ok) throw new Error(`Error ${res.status}`);
       const data: RepoRecord[] = await res.json();
       setRepos(data.map(enrichRepo));
@@ -293,9 +563,11 @@ export default function RepositoriosSection({ isSuperadmin = false, activeEmpres
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [activeEmpresa]);
 
-  useEffect(() => { fetchRepos(); }, [fetchRepos]);
+  useEffect(() => {
+    fetchRepos();
+  }, [fetchRepos]);
 
   // Derivar opciones de filtro.
   const dptoOptions = useMemo(
@@ -319,7 +591,26 @@ export default function RepositoriosSection({ isSuperadmin = false, activeEmpres
     });
   }, [repos, search, filterDpto, filterColaborador, filterRol]);
 
-  const canManage = isSuperadmin; // Expandir con permisos finos en Fase 2.
+  const canManage = Boolean(propCanManage ?? isSuperadmin);
+
+  const handleDelete = async (repo: RepoEnriquecido) => {
+    const id = repo.id || repo.nombre;
+    if (!window.confirm(`¿Estás seguro de eliminar el repositorio "${repo.nombre}"?`)) {
+      return;
+    }
+    try {
+      const res = await fetch(`/api/admin/repositorios?id=${encodeURIComponent(id)}`, {
+        method: 'DELETE',
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'No se pudo eliminar el repositorio.');
+      }
+      fetchRepos();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Error al eliminar repositorio');
+    }
+  };
 
   const hasFilters = search || filterDpto || filterColaborador || filterRol;
 
@@ -385,7 +676,8 @@ export default function RepositoriosSection({ isSuperadmin = false, activeEmpres
           {canManage && (
             <button
               id="btn-nuevo-repositorio"
-              className="ml-auto flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium rounded-lg transition-colors shrink-0"
+              onClick={() => setModalRepo('new')}
+              className="ml-auto flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium rounded-lg transition-colors shrink-0 shadow-lg shadow-blue-500/20"
             >
               <Plus className="w-4 h-4" />
               Nuevo repositorio
@@ -458,13 +750,28 @@ export default function RepositoriosSection({ isSuperadmin = false, activeEmpres
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {filtered.map((repo) => (
                 <RepoCard
-                  key={repo.nombre}
+                  key={repo.id || repo.nombre}
                   repo={repo}
                   canManage={canManage}
+                  onEdit={() => setModalRepo(repo)}
+                  onDelete={() => handleDelete(repo)}
                 />
               ))}
             </div>
           </>
+        )}
+
+        {/* Modal de Crear / Editar Repositorio */}
+        {modalRepo && (
+          <RepositorioModal
+            repo={modalRepo === 'new' ? null : modalRepo}
+            activeEmpresa={activeEmpresa}
+            onClose={() => setModalRepo(null)}
+            onSaved={() => {
+              setModalRepo(null);
+              fetchRepos();
+            }}
+          />
         )}
       </main>
     </div>

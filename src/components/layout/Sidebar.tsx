@@ -133,6 +133,15 @@ function CompanySwitcher({ activeEmpresa, isSuperadmin }: { activeEmpresa?: stri
                 >
                   🌐 Todas las empresas
                 </button>
+                <div className="border-t border-slate-700 my-1" />
+                <a
+                  href="/admin"
+                  onClick={() => setOpen(false)}
+                  className="w-full flex items-center gap-2 px-3 py-2 text-xs text-blue-400 hover:bg-slate-700 hover:text-blue-300 transition-colors"
+                >
+                  <Building2 className="w-3.5 h-3.5" />
+                  Gestionar empresas…
+                </a>
               </>
             )}
           </div>

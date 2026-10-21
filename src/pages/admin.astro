@@ -8,8 +8,13 @@ import { can } from '../lib/permissions';
 if (!(await can(Astro.locals.user, 'page:admin'))) {
   return Astro.redirect('/');
 }
+const canManageEmpresas = await can(Astro.locals.user, 'action:empresa:manage');
 ---
 
 <Layout title="Administración">
-  <AdminSection client:load />
+  <AdminSection
+    client:load
+    isSuperadmin={Astro.locals.isSuperadmin}
+    canManageEmpresas={canManageEmpresas}
+  />
 </Layout>

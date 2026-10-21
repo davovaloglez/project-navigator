@@ -323,6 +323,9 @@ const handleRequest = async (context: APIContext, next: MiddlewareNext): Promise
       } else if (pathname.startsWith('/api/admin/empresas')) {
         // Gestión de empresas: sólo superadmin y admin del sistema.
         if (!evaluate(perms, 'action:empresa:manage')) return forbiddenJson();
+      } else if (pathname.startsWith('/api/admin/repositorios')) {
+        // Gestión de repositorios: sólo roles con acción repositorio:manage.
+        if (!evaluate(perms, 'action:repositorio:manage')) return forbiddenJson();
       } else if (pathname.startsWith('/api/admin/') && !evaluate(perms, 'action:user:manage')) {
         return forbiddenJson();
       }

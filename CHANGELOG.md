@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.24.0] - 2026-10-20
+
+### Added
+
+**Gestión de Empresas para Superadmin & Admin**
+- Pestaña de **Empresas** en la sección [src/components/sections/AdminSection.tsx](src/components/sections/AdminSection.tsx) (`/admin`) con métricas en tiempo real (total miembros, proyectos activos, departamentos), estado activo/inactivo y modal para registrar/editar empresas.
+- Acceso directo "Gestionar empresas…" en el dropdown del `CompanySwitcher` en [src/components/layout/Sidebar.tsx](src/components/layout/Sidebar.tsx) para superadministradores.
+
+**Gestión y CRUD de Repositorios con Control de Acceso**
+- Endpoints de administración [src/pages/api/admin/repositorios.ts](src/pages/api/admin/repositorios.ts) (`POST`, `PUT`, `DELETE`) protegidos bajo la acción `action:repositorio:manage` en [src/middleware.ts](src/middleware.ts).
+- Actualizado [src/pages/api/repositorios.ts](src/pages/api/repositorios.ts) para consultar la base de datos Turso multi-empresa respetando la empresa activa y agregando los colaboradores por rol.
+- En [src/components/sections/RepositoriosSection.tsx](src/components/sections/RepositoriosSection.tsx), los usuarios con permisos de gestión (`canManage` / `superadmin` / `admin`) ahora pueden:
+  - Crear nuevos repositorios con sus datos y asignación de colaboradores por rol.
+  - Editar repositorios existentes.
+  - Eliminar repositorios con confirmación.
+
 ## [1.23.0] - 2026-10-09
 
 ### Added

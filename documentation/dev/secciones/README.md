@@ -39,5 +39,6 @@ Ver [arquitectura/data-flow.md](../arquitectura/data-flow.md) y [arquitectura/co
 | [Tarea (detalle)](tarea-detalle.md) | `/tarea/[id]` | tareas + proyectos | — | — | — |
 | [Persona (detalle)](persona-detalle.md) | `/persona/[id]` | proyectos + tareas + cursos + costos + equipo | — | — | — |
 | [Cuenta](cuenta.md) | `/cuenta` | user-preferences + auth APIs | — | — | — |
-| [Admin (listado)](admin.md) | `/admin` | `/api/auth/admin/*` | — | — | — |
+| [Admin (listado)](admin.md) | `/admin` | `/api/auth/admin/*` + `/api/admin/empresas` | — | — | — |
 | [Admin (detalle)](admin.md) | `/admin/[id]` | `/api/auth/admin/*` + `/api/admin/overrides` | — | — | — |
+| [Repositorios](repositorios.md) | `/repositorios` | repositorios + admin/repositorios | — | — | — |

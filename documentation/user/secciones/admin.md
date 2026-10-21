@@ -14,7 +14,11 @@ Sección exclusiva para el administrador del tablero. Desde aquí puedes gestion
 
 Sólo usuarios con rol **admin**. Si intentas entrar sin ese rol, el sistema te redirige a la página de inicio.
 
-## ¿Qué ves?
+### Pestañas principales
+
+En la parte superior de la sección, los administradores pueden alternar entre dos vistas:
+- **Usuarios:** Gestión de cuentas, contraseñas y roles.
+- **Empresas:** Directorio multi-empresa y métricas operativas.
 
 ### Listado de usuarios
 
@@ -30,6 +34,14 @@ Hay un buscador rápido para encontrar usuarios por nombre, correo o rol.
 ### Crear usuario
 
 Formulario en la parte superior con: correo, nombre, contraseña y rol inicial. La contraseña debe tener mínimo 8 caracteres. El usuario recibirá acceso inmediato con el rol asignado.
+
+### Gestión de Empresas (Pestaña Empresas)
+
+Permite administrar las organizaciones o empresas del sistema:
+- **Métricas por empresa:** total de miembros activos, proyectos en marcha y departamentos.
+- **Estado:** indicador de si la empresa está Activa o Inactiva.
+- **Nueva empresa:** formulario para registrar un nuevo tenant (identificador, nombre, moneda y logo opcional).
+- **Editar empresa:** modificar nombre, moneda, estado o logo.
 
 ### Detalle de usuario (`/admin/[id]`)
 

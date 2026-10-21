@@ -60,6 +60,7 @@ El menú lateral (sidebar) agrupa las secciones por tema. Cada sección de esta 
 - [Detalle de tarea](secciones/tarea-detalle.md) — Ficha completa de una actividad del cronograma con ratio de estimación.
 
 ### Herramientas auxiliares
+- [Repositorios](secciones/repositorios.md) — Directorio de repositorios y roles de acceso en GitHub.
 - [Glosario](secciones/glosario.md) — Diccionario de cada KPI y bloque del tablero.
 - [Novedades](secciones/novedades.md) — Qué cambió en cada versión.
 - [Métricas de devs](secciones/metricas-dev.md) — Comparativa de rendimiento (no aparece en el sidebar).

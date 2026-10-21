@@ -1,6 +1,9 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import RepositoriosSection from '../components/sections/RepositoriosSection';
+import { can } from '../lib/permissions';
+
+const canManage = await can(Astro.locals.user, 'action:repositorio:manage');
 ---
 
 <Layout title="Repositorios">
@@ -8,5 +11,6 @@ import RepositoriosSection from '../components/sections/RepositoriosSection';
     client:load
     isSuperadmin={Astro.locals.isSuperadmin}
     activeEmpresa={Astro.locals.activeEmpresa}
+    canManage={canManage}
   />
 </Layout>
