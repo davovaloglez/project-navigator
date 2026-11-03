@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { LayoutDashboard, FolderKanban, BookOpen, Users, Bell, FileText, CalendarRange, Map, PieChart, DollarSign, ListChecks, Sparkles, TrendingUp, MoreHorizontal, X, HelpCircle, ShieldCheck, Star, HeartPulse, ExternalLink, PanelLeftClose, PanelLeftOpen, GitBranch, ChevronDown, Building2 } from 'lucide-react';
+import { LayoutDashboard, FolderKanban, BookOpen, Users, Bell, FileText, CalendarRange, Map, PieChart, DollarSign, ListChecks, Sparkles, TrendingUp, MoreHorizontal, X, HelpCircle, ShieldCheck, HeartPulse, ExternalLink, PanelLeftClose, PanelLeftOpen, GitBranch, ChevronDown, Building2 } from 'lucide-react';
 import UserMenu from '../auth/UserMenu';
 
 const allNavItems = [

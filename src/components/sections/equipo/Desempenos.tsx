@@ -8,7 +8,6 @@ import { usePermissions } from '../../../hooks/usePermissions';
 import EvaluacionEditModal from '../comparativa/EvaluacionEditModal';
 import {
   DIMENSIONS,
-  DIMENSION_KEYS,
   calcCalificacion,
   calificacionColor,
   comparePeriodos,
@@ -45,7 +44,7 @@ export interface EquipoRow {
   image: string | null;
 }
 
-interface PersonAggregate {
+export interface PersonAggregate {
   equipoId: string;
   name: string;
   image: string | null;
@@ -89,50 +88,35 @@ export default function Desempenos() {
     setPersisted((p) => ({ ...p, categoria: v })), [setPersisted]);
   const setPeriodo = useCallback((v: string) =>
     setPersisted((p) => ({ ...p, periodo: v })), [setPersisted]);
-  const setSort = useCallback((k: SortKey) => {
-    setPersisted((p) => {
-      if (p.sortKey === k) return { ...p, sortDir: p.sortDir === 'asc' ? 'desc' : 'asc' };
-      return { ...p, sortKey: k, sortDir: 'desc' };
-    });
-  }, [setPersisted]);
+  const setSort = useCallback((k: SortKey) =>
+    setPersisted((p) => ({
+      ...p,
+      sortKey: k,
+      sortDir: p.sortKey === k && p.sortDir === 'desc' ? 'asc' : 'desc',
+    })), [setPersisted]);
 
-  const [selected, setSelected] = useState<string[]>([]);
   const [search, setSearch] = useState('');
+  const [selected, setSelected] = useState<string[]>([]);
+  const [editing, setEditing] = useState<PersonAggregate | null>(null);
+  const [creatingFor, setCreatingFor] = useState<PersonAggregate | null>(null);
 
-  // NAV-78: modal de captura/edición para admins
   const { can } = usePermissions();
   const canManage = can('action:evaluacion:manage');
-  const [modalTarget, setModalTarget] = useState<{
-    person: { equipoId: string; name: string; image: string | null; knownPeriods: string[] };
-    initial?: { periodo: string; scores: DimensionScores; notas: string } | null;
-  } | null>(null);
 
-  const toggleSelected = useCallback((id: string) => {
-    setSelected((prev) => {
-      if (prev.includes(id)) return prev.filter((x) => x !== id);
-      if (prev.length >= 3) return [...prev.slice(1), id];
-      return [...prev, id];
-    });
-  }, []);
-
-  const loadData = useCallback(async () => {
+  const load = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const [rEval, rEq] = await Promise.all([
+      const [evRes, eqRes] = await Promise.all([
         fetch('/api/evaluaciones', { credentials: 'same-origin' }),
         fetch('/api/equipo', { credentials: 'same-origin' }),
       ]);
-      if (rEval.status === 401 || rEq.status === 401) {
-        window.location.href = '/login';
-        return;
-      }
-      if (!rEval.ok) throw new Error(`HTTP ${rEval.status} al cargar evaluaciones`);
-      if (!rEq.ok) throw new Error(`HTTP ${rEq.status} al cargar equipo`);
-      const dEval = await rEval.json();
-      const dEq = await rEq.json();
-      setEvaluaciones(dEval.evaluaciones ?? []);
-      setEquipo(dEq.equipo ?? []);
+      if (!evRes.ok) throw new Error(`HTTP ${evRes.status} en /api/evaluaciones`);
+      if (!eqRes.ok) throw new Error(`HTTP ${eqRes.status} en /api/equipo`);
+      const evJson = await evRes.json();
+      const eqJson = await eqRes.json();
+      setEvaluaciones(evJson.evaluaciones ?? []);
+      setEquipo(eqJson.equipo ?? []);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Error desconocido');
     } finally {
@@ -141,10 +125,10 @@ export default function Desempenos() {
   }, []);
 
   useEffect(() => {
-    loadData();
-  }, [loadData]);
+    load();
+  }, [load]);
 
-  // Lista única de periodos (orden desc: Q1 2026, Q4 2025...)
+  // Lista única de períodos (orden desc: Q1 2026, Q4 2025...)
   const periodos = useMemo(() => {
     const set = new Set<string>();
     set.add(quarterOf());
@@ -166,7 +150,7 @@ export default function Desempenos() {
     return map;
   }, [evaluaciones]);
 
-  // Construimos lista de personas (sólo activas) con su eval del periodo seleccionado
+  // Construimos lista de personas (sólo activas) con su eval del período seleccionado
   const peoplePeriod = useMemo<PersonAggregate[]>(() => {
     return equipo
       .filter((p) => p.active)
@@ -217,126 +201,91 @@ export default function Desempenos() {
     });
   }, [peoplePeriod, categoria, search]);
 
-  // Personas con evaluación en este periodo ordenadas desc por calificación (para chips)
-  const chips = useMemo(() => {
-    return filtered
-      .filter((p): p is PersonAggregate & { calificacion: number } => p.calificacion != null)
-      .sort((a, b) => b.calificacion - a.calificacion);
-  }, [filtered]);
-
-  // Filas de la tabla con sort
-  const sortedTable = useMemo(() => {
-    const copy = [...filtered];
-    copy.sort((a, b) => {
-      let va: number | string = 0;
-      let vb: number | string = 0;
-      if (sortKey === 'name') {
-        va = a.name.toLowerCase();
-        vb = b.name.toLowerCase();
-      } else if (sortKey === 'calificacion') {
-        va = a.calificacion ?? -Infinity;
-        vb = b.calificacion ?? -Infinity;
-      } else {
-        va = a.scores ? a.scores[sortKey] : -Infinity;
-        vb = b.scores ? b.scores[sortKey] : -Infinity;
+  const sorted = useMemo(() => {
+    const dir = sortDir === 'asc' ? 1 : -1;
+    return [...filtered].sort((a, b) => {
+      if (sortKey === 'name') return a.name.localeCompare(b.name) * dir;
+      if (sortKey === 'calificacion') {
+        const av = a.calificacion ?? -Infinity;
+        const bv = b.calificacion ?? -Infinity;
+        return (av - bv) * dir;
       }
-      if (va < vb) return sortDir === 'asc' ? -1 : 1;
-      if (va > vb) return sortDir === 'asc' ? 1 : -1;
-      return 0;
+      const av = a.scores?.[sortKey] ?? -Infinity;
+      const bv = b.scores?.[sortKey] ?? -Infinity;
+      return (av - bv) * dir;
     });
-    return copy;
   }, [filtered, sortKey, sortDir]);
 
-  // Datos para el radar overlay (máx 3 personas seleccionadas con eval en el periodo)
+  // Chips ordenadas por calificación (independiente del sort de la tabla).
+  const chips = useMemo(() =>
+    [...filtered]
+      .filter((p) => p.calificacion != null)
+      .sort((a, b) => (b.calificacion ?? 0) - (a.calificacion ?? 0)),
+  [filtered]);
+
+  const toggleSelected = useCallback((id: string) => {
+    setSelected((prev) => {
+      if (prev.includes(id)) return prev.filter((p) => p !== id);
+      if (prev.length >= 3) return prev;
+      return [...prev, id];
+    });
+  }, []);
+
+  const selectedPeople = useMemo(
+    () => selected.map((id) => peoplePeriod.find((p) => p.equipoId === id)).filter(Boolean) as PersonAggregate[],
+    [selected, peoplePeriod],
+  );
+
   const radarData = useMemo(() => {
-    const selectedPeople = selected
-      .map((id) => peoplePeriod.find((p) => p.equipoId === id))
-      .filter((p): p is PersonAggregate => !!p && p.scores != null);
-    if (selectedPeople.length === 0) return null;
-
-    return {
-      people: selectedPeople,
-      rows: DIMENSION_KEYS.map((k) => {
-        const row: Record<string, string | number> = {
-          dimension: DIMENSIONS[k].label,
-        };
-        selectedPeople.forEach((p) => {
-          row[p.equipoId] = p.scores ? p.scores[k] : 0;
-        });
-        return row;
-      }),
-    };
-  }, [selected, peoplePeriod]);
-
-  // Conteos
-  const totalActive = peoplePeriod.length;
-  const captured = peoplePeriod.filter((p) => p.scores != null).length;
+    return DIMENSIONS.map((d) => {
+      const row: Record<string, string | number> = { metric: d.label };
+      for (const p of selectedPeople) {
+        if (p.scores) row[p.name] = p.scores[d.key];
+      }
+      return row;
+    });
+  }, [selectedPeople]);
 
   if (loading) {
     return (
-      <div className="p-4 sm:p-6 space-y-6">
-        <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="bg-slate-800 rounded-xl p-5 animate-pulse h-24" />
-          ))}
-        </div>
-      </div>
+      <div className="bg-slate-800 rounded-xl p-6 animate-pulse h-40" />
     );
   }
 
   if (error) {
     return (
-      <div className="p-4 sm:p-6">
-        <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-6 text-center">
-          <p className="text-red-400 font-medium mb-2">Error al cargar desempeños</p>
-          <p className="text-sm text-slate-400">{error}</p>
-          <button
-            onClick={loadData}
-            className="mt-3 px-4 py-2 bg-red-500/20 text-red-300 rounded-lg text-sm hover:bg-red-500/30"
-          >
-            Reintentar
-          </button>
-        </div>
+      <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-6 text-center">
+        <p className="text-red-400 font-medium mb-2">Error al cargar datos de desempeños</p>
+        <p className="text-sm text-slate-400">{error}</p>
+        <button
+          onClick={load}
+          className="mt-3 px-4 py-2 bg-red-500/20 text-red-300 rounded-lg text-sm hover:bg-red-500/30"
+        >
+          Reintentar
+        </button>
       </div>
     );
   }
 
+  const captured = filtered.filter((p) => p.scores != null).length;
+  const total = filtered.length;
+
   return (
     <div>
-      {/* Barra de filtros */}
+      {/* Controles de filtro */}
       <div className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-4 mb-6">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          {/* Período */}
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
-              Período
-            </span>
-            <select
-              value={periodo}
-              onChange={(e) => setPeriodo(e.target.value)}
-              className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-sm text-slate-200 focus:outline-none focus:border-blue-500"
-            >
-              {periodos.map((p) => (
-                <option key={p} value={p}>
-                  {p}
-                </option>
-              ))}
-            </select>
-          </div>
-
+        <div className="flex flex-wrap items-center justify-between gap-3">
           {/* Categoría */}
           <div className="flex items-center gap-1.5 flex-wrap">
-            <span className="text-xs font-semibold uppercase tracking-wider text-slate-400 mr-1">
-              Categoría
-            </span>
+            <span className="text-xs text-slate-400 uppercase tracking-wider font-medium mr-1">Categoría</span>
             {(['Todos', ...CATEGORY_ORDER] as const).map((cat) => (
               <button
                 key={cat}
                 onClick={() => setCategoria(cat)}
-                className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-colors ${
+                className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors ${
                   categoria === cat
                     ? 'bg-blue-600 text-white'
-                    : 'bg-slate-800 text-slate-400 hover:text-white border border-slate-700/50'
+                    : 'bg-slate-700/50 text-slate-300 hover:bg-slate-700 hover:text-white'
                 }`}
               >
                 {cat}
@@ -344,31 +293,53 @@ export default function Desempenos() {
             ))}
           </div>
 
-          {/* Búsqueda */}
-          <div className="relative min-w-[200px] flex-1 max-w-xs">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Nombre o apodo…"
-              className="w-full bg-slate-800 border border-slate-700 rounded-lg pl-9 pr-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-blue-500"
-            />
+          <div className="flex items-center gap-3">
+            {/* Período */}
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-slate-400 uppercase tracking-wider font-medium">Período</span>
+              <select
+                value={periodo}
+                onChange={(e) => setPeriodo(e.target.value)}
+                className="bg-slate-700 border border-slate-600 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500"
+              >
+                {periodos.map((p) => (
+                  <option key={p} value={p}>{p}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Búsqueda */}
+            <div className="relative min-w-48">
+              <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Buscar persona..."
+                className="w-full bg-slate-700 border border-slate-600 rounded-lg pl-8 pr-3 py-1.5 text-xs text-white placeholder-slate-400 focus:outline-none focus:border-blue-500"
+              />
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
-        <p className="text-xs text-slate-500">
-          {captured} de {totalActive} personas se autoevaluaron en {periodo}
-          {filtered.length !== peoplePeriod.length && ` · ${filtered.length} en este filtro`}
+      {/* Meta info */}
+      <div className="flex items-center justify-between gap-3 mb-4 flex-wrap">
+        <p className="text-xs text-slate-400">
+          <span className="text-slate-200 font-medium">{captured}</span> de {total} autoevaluaron en {periodo}
+          {selected.length > 0 && (
+            <span className="text-blue-300 ml-2">({selected.length} seleccionados para radar)</span>
+          )}
         </p>
-        <button onClick={clearPersisted} className="text-xs text-slate-400 hover:text-slate-200">
+        <button
+          onClick={clearPersisted}
+          className="text-xs text-slate-400 hover:text-slate-200 underline"
+        >
           Restablecer filtros
         </button>
       </div>
 
-      {/* Chips ordenadas */}
+      {/* Ranking de chips */}
       <div className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-4 mb-6">
         <div className="flex items-center gap-2 mb-3">
           <Trophy className="w-4 h-4 text-yellow-400" />
@@ -386,206 +357,141 @@ export default function Desempenos() {
                 <button
                   key={p.equipoId}
                   onClick={() => toggleSelected(p.equipoId)}
-                  className={`group flex items-center gap-2 pl-1 pr-3 py-1 rounded-full border transition-all ${
+                  className={`group flex items-center gap-2 pl-1 pr-3 py-1 rounded-full border transition-all text-left ${
                     isSelected
                       ? 'bg-blue-500/20 border-blue-500/60 ring-1 ring-blue-500/40'
                       : 'bg-slate-800 border-slate-700/50 hover:border-slate-500'
                   }`}
+                  title={`${p.name} · ${p.roleName || '—'} · calif. ${cal.toFixed(2)}`}
                 >
-                  <Avatar name={p.name} image={p.image} size="sm" />
-                  <span className="text-xs text-slate-500 font-mono">#{rank}</span>
-                  <span className="text-xs font-medium text-slate-200 group-hover:text-white">
-                    {p.name}
-                  </span>
-                  <span className={`text-xs font-bold ${calificacionColor(cal)}`}>
-                    {cal.toFixed(1)}
-                  </span>
-                  {isSelected && <X className="w-3 h-3 text-blue-400 ml-0.5" />}
+                  <Avatar name={p.name} image={p.image} size={26} />
+                  <span className="text-xs text-slate-400 tabular-nums">#{rank}</span>
+                  <span className="text-sm text-slate-200 truncate max-w-32">{p.name}</span>
+                  <span className={`text-sm font-bold tabular-nums ${calificacionColor(cal)}`}>{cal.toFixed(2)}</span>
+                  {isSelected && <X className="w-3.5 h-3.5 text-blue-300" />}
                 </button>
               );
             })}
           </div>
         ) : (
-          <p className="text-xs text-slate-500 italic">
-            Nadie en este filtro tiene evaluación capturada para {periodo}.
-          </p>
+          <p className="text-sm text-slate-500">Nadie capturó evaluación en este período / filtro.</p>
         )}
       </div>
 
-      {/* Radar overlay (si hay selección con scores) */}
-      {radarData && (
-        <div className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-6 mb-6">
-          <div className="flex items-center justify-between mb-4">
+      {/* Radar overlay */}
+      {selectedPeople.length > 0 && (
+        <div className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-4 mb-6">
+          <div className="flex items-center justify-between gap-2 mb-3">
             <div className="flex items-center gap-2">
-              <Star className="w-4 h-4 text-blue-400" />
+              <Star className="w-4 h-4 text-yellow-400" />
               <h3 className="text-sm font-medium text-slate-200">Radar comparativo</h3>
               <GlossaryTooltip id="comparativa-radar" />
             </div>
-            <button
-              onClick={() => setSelected([])}
-              className="text-xs text-slate-400 hover:text-slate-200"
-            >
+            <button onClick={() => setSelected([])} className="text-xs text-slate-400 hover:text-slate-200">
               Limpiar selección
             </button>
           </div>
-          <div className="h-80 w-full">
+          <div className="h-96">
             <ResponsiveContainer width="100%" height="100%">
-              <RadarChart data={radarData.rows} outerRadius="75%">
+              <RadarChart data={radarData}>
                 <PolarGrid stroke="#334155" />
-                <PolarAngleAxis
-                  dataKey="dimension"
-                  stroke="#94a3b8"
-                  tick={{ fill: '#94a3b8', fontSize: 11 }}
-                />
-                {radarData.people.map((p, idx) => (
+                <PolarAngleAxis dataKey="metric" tick={{ fill: '#94a3b8', fontSize: 12 }} />
+                {selectedPeople.map((p, i) => (
                   <Radar
                     key={p.equipoId}
                     name={p.name}
-                    dataKey={p.equipoId}
-                    stroke={RADAR_COLORS[idx % RADAR_COLORS.length]}
-                    fill={RADAR_COLORS[idx % RADAR_COLORS.length]}
+                    dataKey={p.name}
+                    stroke={RADAR_COLORS[i]}
+                    fill={RADAR_COLORS[i]}
                     fillOpacity={0.25}
                   />
                 ))}
-                <Legend
-                  wrapperStyle={{ paddingTop: 16 }}
-                  formatter={(val) => <span className="text-xs text-slate-300">{val}</span>}
-                />
+                <Legend wrapperStyle={{ color: '#cbd5e1', fontSize: 12 }} />
               </RadarChart>
             </ResponsiveContainer>
           </div>
         </div>
       )}
 
-      {/* Tabla detallada */}
-      <div className="bg-slate-800/50 border border-slate-700/50 rounded-xl overflow-hidden">
-        <div className="px-4 py-3 border-b border-slate-700/50 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <h3 className="text-sm font-medium text-slate-200">Detalle por persona</h3>
-            <GlossaryTooltip id="comparativa-tabla" />
-          </div>
-          <span className="text-xs text-slate-500">{sortedTable.length} personas</span>
+      {/* Tabla */}
+      <div className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-2 mb-6">
+        <div className="flex items-center gap-2 px-3 pt-3 pb-2">
+          <h3 className="text-sm font-medium text-slate-200">Tabla por persona</h3>
+          <GlossaryTooltip id="comparativa-tabla" />
         </div>
-
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-slate-800/80 text-slate-400 uppercase tracking-wider text-[10px] border-b border-slate-700/50">
-              <tr>
-                <th
-                  onClick={() => setSort('name')}
-                  className="px-4 py-3 cursor-pointer hover:text-slate-200"
-                >
-                  <div className="flex items-center gap-1">
-                    Persona
-                    {sortKey === 'name' && (sortDir === 'asc' ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />)}
-                  </div>
-                </th>
-                <th
-                  onClick={() => setSort('calificacion')}
-                  className="px-3 py-3 cursor-pointer hover:text-slate-200 text-right"
-                >
-                  <div className="flex items-center justify-end gap-1">
-                    Calificación
-                    {sortKey === 'calificacion' && (sortDir === 'asc' ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />)}
-                  </div>
-                </th>
-                {DIMENSION_KEYS.map((k) => (
-                  <th
-                    key={k}
-                    onClick={() => setSort(k)}
-                    className="px-3 py-3 cursor-pointer hover:text-slate-200 text-right"
-                  >
-                    <div className="flex items-center justify-end gap-1">
-                      {DIMENSIONS[k].label}
-                      {sortKey === k && (sortDir === 'asc' ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />)}
-                    </div>
-                  </th>
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="text-slate-500 text-xs uppercase tracking-wider border-b border-slate-700/50">
+                <SortableTh label="Persona" k="name" sortKey={sortKey} sortDir={sortDir} onClick={setSort} align="left" />
+                <SortableTh label="Calif." k="calificacion" sortKey={sortKey} sortDir={sortDir} onClick={setSort} align="right" />
+                {DIMENSIONS.map((d) => (
+                  <SortableTh key={d.key} label={d.label} k={d.key} sortKey={sortKey} sortDir={sortDir} onClick={setSort} align="right" />
                 ))}
-                <th className="px-3 py-3 text-right">Histórico</th>
-                {canManage && <th className="px-3 py-3 text-center">Acciones</th>}
+                <th className="text-right py-2 px-3 font-medium">Histórico</th>
+                {canManage && <th className="text-right py-2 px-3 font-medium">Acción</th>}
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-700/30">
-              {sortedTable.map((p) => {
-                const isSelected = selected.includes(p.equipoId);
+            <tbody>
+              {sorted.map((p) => {
                 const cal = p.calificacion;
+                const hasInPeriod = p.scores != null;
                 return (
                   <tr
                     key={p.equipoId}
-                    onClick={() => toggleSelected(p.equipoId)}
-                    className={`cursor-pointer transition-colors ${
-                      isSelected
-                        ? 'bg-blue-500/10 hover:bg-blue-500/15'
-                        : 'hover:bg-slate-800/40'
+                    className={`border-b border-slate-700/30 hover:bg-slate-700/20 cursor-pointer ${
+                      selected.includes(p.equipoId) ? 'bg-blue-500/5' : ''
                     }`}
+                    onClick={() => toggleSelected(p.equipoId)}
                   >
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-2.5">
-                        <Avatar name={p.name} image={p.image} size="sm" />
-                        <div>
-                          <p className="font-medium text-slate-200">{p.name}</p>
-                          <p className="text-[11px] text-slate-500">
-                            {p.roleName || 'Sin rol'} · {p.category}
-                          </p>
+                    <td className="py-2 px-3">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <Avatar name={p.name} image={p.image} size={28} />
+                        <div className="min-w-0">
+                          <a
+                            href={`/persona/${p.equipoId}`}
+                            onClick={(e) => e.stopPropagation()}
+                            className="text-slate-200 hover:text-blue-300 truncate block"
+                          >
+                            {p.name}
+                          </a>
+                          <p className="text-[10px] text-slate-500">{p.roleName || '—'} · {p.category}</p>
                         </div>
                       </div>
                     </td>
-                    <td className="px-3 py-3 text-right">
-                      {cal != null ? (
-                        <span className={`font-bold ${calificacionColor(cal)}`}>
-                          {cal.toFixed(1)}
-                        </span>
-                      ) : (
-                        <span className="text-slate-600">—</span>
-                      )}
+                    <td className={`py-2 px-3 text-right font-bold tabular-nums ${cal != null ? calificacionColor(cal) : 'text-slate-600'}`}>
+                      {cal != null ? cal.toFixed(2) : '—'}
                     </td>
-                    {DIMENSION_KEYS.map((k) => {
-                      const score = p.scores ? p.scores[k] : null;
+                    {DIMENSIONS.map((d) => {
+                      const v = p.scores?.[d.key];
                       return (
-                        <td key={k} className="px-3 py-3 text-right font-mono">
-                          {score != null ? (
-                            <span className={calificacionColor(score)}>{score}</span>
-                          ) : (
-                            <span className="text-slate-600">—</span>
-                          )}
+                        <td key={d.key} className={`py-2 px-3 text-right tabular-nums ${v != null ? calificacionColor(v) : 'text-slate-600'}`}>
+                          {v ?? '—'}
                         </td>
                       );
                     })}
-                    <td className="px-3 py-3 text-right text-slate-400">
-                      {p.evalCount > 0 ? `${p.evalCount} capturas` : '—'}
+                    <td className="py-2 px-3 text-right text-xs text-slate-500">
+                      {p.evalCount > 0 ? `${p.evalCount} eval` : '—'}
                     </td>
                     {canManage && (
-                      <td
-                        className="px-3 py-3 text-center"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <button
-                          onClick={() =>
-                            setModalTarget({
-                              person: {
-                                equipoId: p.equipoId,
-                                name: p.name,
-                                image: p.image,
-                                knownPeriods: p.knownPeriods,
-                              },
-                              initial: p.scores
-                                ? {
-                                    periodo,
-                                    scores: p.scores,
-                                    notas: p.notas ?? '',
-                                  }
-                                : null,
-                            })
-                          }
-                          className="p-1 rounded text-slate-400 hover:text-white hover:bg-slate-700 transition-colors"
-                          title={p.scores ? `Editar evaluación de ${p.name}` : `Capturar evaluación para ${p.name}`}
-                        >
-                          {p.scores ? (
-                            <Pencil className="w-3.5 h-3.5 text-blue-400" />
-                          ) : (
-                            <Plus className="w-3.5 h-3.5 text-slate-400" />
-                          )}
-                        </button>
+                      <td className="py-2 px-3 text-right" onClick={(e) => e.stopPropagation()}>
+                        {hasInPeriod ? (
+                          <button
+                            onClick={() => setEditing(p)}
+                            className="inline-flex items-center gap-1 text-xs text-slate-400 hover:text-blue-300 px-2 py-1 rounded"
+                            title={`Editar evaluación de ${p.name} en ${periodo}`}
+                          >
+                            <Pencil className="w-3 h-3" /> Editar
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => setCreatingFor(p)}
+                            className="inline-flex items-center gap-1 text-xs text-slate-500 hover:text-blue-300 px-2 py-1 rounded"
+                            title={`Capturar evaluación para ${p.name} en ${periodo}`}
+                          >
+                            <Plus className="w-3 h-3" /> Capturar
+                          </button>
+                        )}
                       </td>
                     )}
                   </tr>
@@ -596,18 +502,58 @@ export default function Desempenos() {
         </div>
       </div>
 
-      {modalTarget && (
-        <EvaluacionEditModal
-          person={modalTarget.person}
-          initial={modalTarget.initial}
-          onClose={() => setModalTarget(null)}
-          onSaved={() => {
-            setModalTarget(null);
-            loadData();
-          }}
-        />
-      )}
+      {(editing || creatingFor) && (() => {
+        const target = editing ?? creatingFor!;
+        const initial = editing
+          ? {
+              periodo,
+              scores: editing.scores!,
+              notas: editing.notas ?? '',
+            }
+          : null;
+        return (
+          <EvaluacionEditModal
+            person={{
+              equipoId: target.equipoId,
+              name: target.name,
+              image: target.image,
+              knownPeriods: target.knownPeriods,
+            }}
+            initial={initial}
+            onClose={() => { setEditing(null); setCreatingFor(null); }}
+            onSaved={load}
+          />
+        );
+      })()}
     </div>
   );
 }
 
+function SortableTh({
+  label,
+  k,
+  sortKey,
+  sortDir,
+  onClick,
+  align,
+}: {
+  label: string;
+  k: SortKey;
+  sortKey: SortKey;
+  sortDir: SortDir;
+  onClick: (k: SortKey) => void;
+  align: 'left' | 'right';
+}) {
+  const active = sortKey === k;
+  const dirIcon = active ? (sortDir === 'desc' ? <ChevronDown className="w-3 h-3" /> : <ChevronUp className="w-3 h-3" />) : null;
+  return (
+    <th
+      className={`py-2 px-3 cursor-pointer hover:text-slate-200 font-medium ${align === 'right' ? 'text-right' : 'text-left'}`}
+      onClick={() => onClick(k)}
+    >
+      <span className={`inline-flex items-center gap-1 ${active ? 'text-blue-300' : ''}`}>
+        {label}{dirIcon}
+      </span>
+    </th>
+  );
+}
