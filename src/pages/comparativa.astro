@@ -1,8 +1,4 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import ComparativaSection from '../components/sections/ComparativaSection';
+// Redirección permanente/temporal de la ruta anterior /comparativa hacia la pestaña Desempeños en Equipo
+return Astro.redirect('/equipo?tab=desempenos', 301);
 ---
-
-<Layout title="Comparativa">
-  <ComparativaSection client:load />
-</Layout>

@@ -98,10 +98,12 @@ export const blockDenyByRole: Record<string, string[]> = {
     // puesta para que un override per-user al alza no exponga estas tabs.
     'equipo-capacity-heatmap',
     'equipo-comparativa',
+    'equipo-desempenos',
   ],
   ventas: [
     'dashboard-cost-overview',
     'equipo-capacity-heatmap',
     'equipo-comparativa',
+    'equipo-desempenos',
   ],
 };

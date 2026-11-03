@@ -15,7 +15,6 @@ const allNavItems = [
   { href: '/distribucion', label: 'Puntos', icon: PieChart, pageKey: 'distribucion' },
   { href: '/equipo', label: 'Equipo', icon: Users, pageKey: 'equipo' },
   { href: '/repositorios', label: 'Repositorios', icon: GitBranch, pageKey: 'repositorios' },
-  { href: '/comparativa', label: 'Comparativa', icon: Star, pageKey: 'comparativa' },
   { href: '/cursos', label: 'Cursos', icon: BookOpen, pageKey: 'cursos' },
   { href: '/novedades', label: 'Novedades', icon: Sparkles, pageKey: 'novedades' },
   { href: '/glosario', label: 'Glosario', icon: HelpCircle, pageKey: 'glosario' },

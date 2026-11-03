@@ -109,7 +109,6 @@ const SIDEBAR_PAGE_ORDER: ReadonlyArray<readonly [string, string]> = [
   ['/costos', 'costos'],
   ['/distribucion', 'distribucion'],
   ['/equipo', 'equipo'],
-  ['/comparativa', 'comparativa'],
   ['/cursos', 'cursos'],
   ['/novedades', 'novedades'],
   ['/glosario', 'glosario'],
@@ -335,10 +334,15 @@ const handleRequest = async (context: APIContext, next: MiddlewareNext): Promise
       if (pathname.startsWith('/api/cs360/') && !evaluate(perms, 'page:cs360')) {
         return forbiddenJson();
       }
-      // NAV-78: lectura cross-persona de evaluaciones; sólo `action:evaluacion:view-all`.
+      // NAV-78: lectura cross-persona de evaluaciones; gateado por `action:evaluacion:view-all`
+      // o por permiso del bloque de desempeños en equipo `block:equipo-desempenos` o página equipo.
       // `/api/me/evaluaciones` queda fuera (cada uno ve lo suyo, gateado por
       // sesión + filtro por equipoId dentro del endpoint).
-      if (pathname === '/api/evaluaciones' && !evaluate(perms, 'action:evaluacion:view-all')) {
+      if (
+        pathname === '/api/evaluaciones' &&
+        !evaluate(perms, 'action:evaluacion:view-all') &&
+        !evaluate(perms, 'block:equipo-desempenos')
+      ) {
         return forbiddenJson();
       }
       // Gate genérico: endpoint requiere AL MENOS una page-key de sus

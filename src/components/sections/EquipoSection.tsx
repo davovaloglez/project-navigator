@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useCallback } from 'react';
-import { Users, UserCheck, KeyRound, Search, Plus, Pencil, X, Layers, ArrowUpDown, LayoutGrid, Activity, Network, GitCompare, DollarSign, Cpu } from 'lucide-react';
+import { Users, UserCheck, KeyRound, Search, Plus, Pencil, X, Layers, ArrowUpDown, LayoutGrid, Activity, Network, GitCompare, DollarSign, Cpu, Star } from 'lucide-react';
 import { useSheetData } from '../../hooks/useSheetData';
 import { usePermissions } from '../../hooks/usePermissions';
 import { usePersistedFilters } from '../../hooks/usePersistedFilters';
@@ -13,6 +13,7 @@ import Tabs from '../ui/Tabs';
 import CapacityHeatmap from './equipo/CapacityHeatmap';
 import Organigrama from './equipo/Organigrama';
 import Comparativa from './equipo/Comparativa';
+import Desempenos from './equipo/Desempenos';
 import CostosEquipo from './equipo/CostosEquipo';
 import Tecnologias from './equipo/Tecnologias';
 
@@ -35,7 +36,7 @@ interface EquipoRecord {
 
 type GroupBy = 'none' | 'categoria' | 'departamento' | 'rol';
 type SortBy = 'carga' | 'puntos' | 'criticos';
-type TabKey = 'directorio' | 'capacidad' | 'organigrama' | 'comparativa' | 'costos' | 'tecnologias';
+type TabKey = 'directorio' | 'capacidad' | 'organigrama' | 'comparativa' | 'desempenos' | 'costos' | 'tecnologias';
 interface RoleOpt { id: string; name: string; }
 
 interface EquipoPayload { equipo: EquipoRecord[]; roles: RoleOpt[]; }
@@ -218,12 +219,14 @@ export default function EquipoSection() {
   const canCapacidad = can('block:equipo-capacity-heatmap');
   const canOrganigrama = can('block:equipo-organigrama');
   const canComparativa = can('block:equipo-comparativa');
+  const canDesempenos = can('action:evaluacion:view-all') || can('block:equipo-desempenos');
   const canTecnologias = can('block:equipo-tecnologias-heatmap');
   const availableTabs: TabKey[] = [
     ...(canDirectorio ? ['directorio' as const] : []),
     ...(canCapacidad ? ['capacidad' as const] : []),
     ...(canOrganigrama ? ['organigrama' as const] : []),
     ...(canComparativa ? ['comparativa' as const] : []),
+    ...(canDesempenos ? ['desempenos' as const] : []),
     ...(canCosts ? ['costos' as const] : []),
     ...(canTecnologias ? ['tecnologias' as const] : []),
   ];
@@ -343,6 +346,7 @@ export default function EquipoSection() {
             ...(canCapacidad ? [{ key: 'capacidad', label: 'Capacidad y Carga', icon: Activity }] : []),
             ...(canOrganigrama ? [{ key: 'organigrama', label: 'Organigrama', icon: Network }] : []),
             ...(canComparativa ? [{ key: 'comparativa', label: 'Comparativa', icon: GitCompare }] : []),
+            ...(canDesempenos ? [{ key: 'desempenos', label: 'Desempeños', icon: Star }] : []),
             ...(canCosts ? [{ key: 'costos', label: 'Costos', icon: DollarSign }] : []),
             ...(canTecnologias ? [{ key: 'tecnologias', label: 'Tecnologías', icon: Cpu }] : []),
           ]}
@@ -476,6 +480,10 @@ export default function EquipoSection() {
           costos={costos}
           costosForbidden={costosForbidden}
         />
+      )}
+
+      {activeTab === 'desempenos' && canDesempenos && (
+        <Desempenos />
       )}
 
       {activeTab === 'costos' && canCosts && (

@@ -289,15 +289,15 @@ export const GLOSSARY_SECTIONS: GlossarySection[] = [
   },
   {
     slug: 'comparativa',
-    title: 'Comparativa',
-    description: 'Vista cross-persona de autoevaluaciones trimestrales (privada, admin-only por default). Chips ordenadas + radar overlay + tabla por dimensión.',
+    title: 'Desempeños',
+    description: 'Vista cross-persona de autoevaluaciones trimestrales en la pestaña Desempeños de Equipo. Chips ordenadas + radar overlay + tabla por dimensión.',
     intro: {
-      whatIs: 'Página `/comparativa`. Vista de **administración** que cruza las evaluaciones trimestrales del equipo. Modelo de privacidad **Modo A**: el colaborador **no** ve su propia evaluación; sólo un admin (gateado por `action:evaluacion:view-all`) las ve y las captura/edita aquí (vía `action:evaluacion:manage`). Tres bloques: (1) **Ranking** de chips con avatar + calificación promedio, orden descendiente; (2) **Radar overlay** al seleccionar hasta 3 personas (las 7 dimensiones superpuestas); (3) **Tabla sortable** con todas las personas y sus 7 dimensiones + calificación + cantidad de capturas históricas.',
+      whatIs: 'Pestaña **Desempeños** en `/equipo`. Vista que cruza las evaluaciones trimestrales del equipo. Modelo de privacidad: configurable mediante la sección de permisos (y `action:evaluacion:view-all` / `block:equipo-desempenos`). Tres bloques: (1) **Ranking** de chips con avatar + calificación promedio, orden descendiente; (2) **Radar overlay** al seleccionar hasta 3 personas (las 7 dimensiones superpuestas); (3) **Tabla sortable** con todas las personas y sus 7 dimensiones + calificación + cantidad de capturas históricas.',
       whenToUse: 'Para sesiones de evaluación de equipo (1:1s con managers, planning de carrera), para detectar a quién subir/dar mentoría, o para identificar gaps de capacidad por categoría de rol (Tecnología vs Management vs UX/UI). El filtro por categoría resuelve "PM vs PM, DEV vs DEV".',
       related: [
-        { slug: 'cuenta', label: 'Mi cuenta', difference: 'Las evaluaciones se gestionan sólo aquí (admin). En `/cuenta` el colaborador ya no ve ni captura su propia evaluación.' },
-        { slug: 'equipo', label: 'Equipo', difference: 'Equipo es el directorio con métricas **duras** derivadas del Sheet (carga, progreso, puntos). Comparativa son scores **subjetivos** declarados por cada persona, complementarios al directorio.' },
-        { slug: 'metricas-dev', label: 'Métricas Dev', difference: 'Métricas Dev compara con datos del Sheet (completion rate, health score); Comparativa compara con autoevaluación. Visiones complementarias: la primera es desempeño objetivo del portafolio, la segunda es percepción personal.' },
+        { slug: 'cuenta', label: 'Mi cuenta', difference: 'Las evaluaciones se gestionan en Desempeños. En `/cuenta` el colaborador ya no ve ni captura su propia evaluación.' },
+        { slug: 'equipo', label: 'Equipo', difference: 'Equipo es el directorio con métricas duras derivadas del Sheet (carga, progreso, puntos). Desempeños son scores declarados y evaluados por persona.' },
+        { slug: 'metricas-dev', label: 'Métricas Dev', difference: 'Métricas Dev compara con datos del Sheet (completion rate, health score); Desempeños compara con autoevaluación/evaluación por dimensiones.' },
       ],
     },
   },
@@ -3388,10 +3388,10 @@ Los proyectos se deduplican por folio para no contar dos veces a quien es Arquit
       { label: 'MetricasDevSection.tsx · table render', href: `${GITHUB_BASE}/src/components/sections/MetricasDevSection.tsx#L272-L344` },
     ],
   },
-  // ─── Comparativa ───────────────────────────────────────────────────────────
+  // ─── Desempeños ───────────────────────────────────────────────────────────
   {
     id: 'comparativa-ranking',
-    section: 'Comparativa',
+    section: 'Desempeños',
     sectionSlug: 'comparativa',
     title: 'Ranking de calificaciones',
     summary: 'Chips con avatar + calificación promedio del período seleccionado, ordenadas desc. Click para añadir al radar (máx 3).',
@@ -3416,7 +3416,7 @@ Sirve como **selector de comparación**: click en una chip la marca y la suma al
   },
   {
     id: 'comparativa-radar',
-    section: 'Comparativa',
+    section: 'Desempeños',
     sectionSlug: 'comparativa',
     title: 'Radar comparativo',
     summary: 'Overlay de hasta 3 personas en las 7 dimensiones de evaluación. Útil para ver fortalezas relativas.',
@@ -3437,7 +3437,7 @@ Sólo aparece para personas que **sí capturaron** evaluación en el período se
   },
   {
     id: 'comparativa-tabla',
-    section: 'Comparativa',
+    section: 'Desempeños',
     sectionSlug: 'comparativa',
     title: 'Tabla por persona',
     summary: 'Filas por persona, columnas por dimensión. Sortable por cualquier columna. Click en fila para añadir al radar.',
