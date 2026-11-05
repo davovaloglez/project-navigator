@@ -24,6 +24,7 @@ La auth es el control de acceso primario; el sistema de permisos es autorizació
 
 | Amenaza | Mitigación |
 |---|---|
+| Cruce de datos entre empresas (tenant contamination) — un proyecto de empresa A podría en teoría recibir un cliente, miembro o tarea asignado de empresa B si no hubiera restricción a nivel de motor | Triggers `BEFORE INSERT/UPDATE` con `RAISE(ABORT)` en Turso para `proyecto`, `proyecto_miembro` y `tarea`. Ver [db_diagrama.md → Triggers de integridad](db_diagrama.md#4-triggers-de-integridad-aislamiento-estricto-por-tenant). Validación continua vía `npx tsx --env-file=.env scripts/validateTursoIntegrity.ts` |
 | Enumeración de usuarios por timing en login | Better-Auth 1.6.9 ya iguala tiempos upstream. Si delta > 100ms en prod, hook documentado en `auth.ts` (no aplicado por default) |
 | Brute force / credential stuffing en `/sign-in/email` | Rate limit por IP+path: 5 intentos / 5 min |
 | Brute force vía OAuth | Rate limit en `/sign-in/social/*`: 10 intentos / 5 min |
@@ -41,7 +42,7 @@ La auth es el control de acceso primario; el sistema de permisos es autorizació
 - DoS / agotamiento de recursos — confiamos en el rate limiting de AWS (Amplify / CloudFront / WAF) a nivel infraestructura.
 - 2FA TOTP — no requerido; Google OAuth de-facto cumple ese rol para usuarios sin password.
 - Auditoría de eventos de auth — Better-Auth no escribe logs estructurados por default. Si se necesita compliance, agregar `databaseHooks.session.create.after` que escriba a una tabla `auth_audit`.
-- Autorización horizontal entre usuarios (IDOR) — endpoints actuales no exponen recursos por id ajeno. Cualquier endpoint futuro que lo haga debe validar `Astro.locals.user.id` contra el recurso.
+| Autorización horizontal entre usuarios (IDOR) — endpoints actuales no exponen recursos por id ajeno. Cualquier endpoint futuro que lo haga debe validar `Astro.locals.user.id` contra el recurso.
 - **Filtrado de contenido a nivel fila** — `/api/proyectos`, `/api/tareas`, `/api/cursos` y `/api/capacidades` aplican row-scoping por identidad (Fase 5, `src/lib/requesterScope.ts`): roles `pm`/`dev` ven sólo sus propias filas; roles `admin/directores/gerentes/ventas` (`UNSCOPED_ROLES`) ven todo. Ver también `auth.md` para el mecanismo de `requesterScope`. Los demás endpoints de datos (`GET /api/equipo`, `GET /api/snapshots`, `/api/repositorios`, `/api/hitos`) usan gate grueso (all-or-nothing por página consumidora) — no requieren row-scoping porque no exponen datos personales cruzados de la misma forma.
 - **Block gating como show/hide** — `KPICard`, `ChartCard` y `<Gate>` ocultan bloques en la UX pero los datos que los alimentan pueden llegar igualmente al cliente (si el endpoint no los filtra). Es defensa en profundidad sobre la API, no un control primario.
 - **Avatares en S3 con lectura pública** — las fotos de perfil se sirven por URL pública (no son dato sensible; ya se muestran a otros usuarios, así que una URL pública no abre vector). La escritura sí es privada (credenciales AWS server-side + endpoints gateados). Decisión consciente, no se usa bucket privado; ruta de migración a privado documentada en [api/me-avatar.md → Decisión de arquitectura](../api/me-avatar.md#decisión-de-arquitectura-lectura-pública-no-bucket-privado).

@@ -362,7 +362,30 @@ erDiagram
 
 ---
 
-## 4. Tablas de infraestructura y estado
+## 4. Triggers de integridad: Aislamiento estricto por tenant
+
+Los siguientes triggers protegen las tres reglas de aislamiento del Nivel 5 (Proyectos y Tareas) a nivel de motor de base de datos, usando `RAISE(ABORT, ...)`. Se definen en [`src/db/migrations/2026-multi-empresa-integrity-triggers.sql`](../../../src/db/migrations/2026-multi-empresa-integrity-triggers.sql).
+
+| Trigger | Tabla vigilada | Regla que aplica |
+|---|---|---|
+| `trg_proyecto_cliente_empresa_insert` | `proyecto` (INSERT) | `cliente.empresa_id` debe coincidir con `proyecto.empresa_id` |
+| `trg_proyecto_cliente_empresa_update` | `proyecto` (UPDATE) | Igual que el anterior, si cambia `cliente_id` o `empresa_id` |
+| `trg_proyecto_miembro_empresa_insert` | `proyecto_miembro` (INSERT) | `empresa_miembro.empresa_id` debe coincidir con `proyecto.empresa_id` |
+| `trg_proyecto_miembro_empresa_update` | `proyecto_miembro` (UPDATE) | Igual que el anterior, si cambia `miembro_id` o `proyecto_id` |
+| `trg_tarea_asignado_empresa_insert` | `tarea` (INSERT) | `empresa_miembro.empresa_id` del asignado debe coincidir con `proyecto.empresa_id` |
+| `trg_tarea_asignado_empresa_update` | `tarea` (UPDATE) | Igual que el anterior, si cambia `asignado_miembro_id` o `proyecto_id` |
+
+> **Nota:** `proyecto_equipo` (squads cross-empresa) no es vigilado por estos triggers porque la asignación de equipos a proyectos admite colaboración entre empresas de forma explícita y controlada. Las restricciones aplican únicamente a la asignación de miembros individuales y tareas.
+
+La coherencia de los datos se puede verificar en cualquier momento ejecutando:
+
+```bash
+npx tsx --env-file=.env scripts/validateTursoIntegrity.ts
+```
+
+---
+
+## 5. Tablas de infraestructura y estado
 
 Las siguientes tablas operan en Turso para fines de sesión, seguridad y métricas del sistema, manteniéndose fuera del modelo de negocio directo:
 
