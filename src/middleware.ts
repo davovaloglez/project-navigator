@@ -55,6 +55,16 @@ const API_PAGE_GATES: Record<string, string[]> = {
   // (el tab Tecnologías vive en /equipo).
   '/api/technologies': ['equipo'],
   '/api/team-technologies': ['equipo'],
+  '/api/empresas': [
+    'dashboard', 'resumen', 'alertas', 'portafolio', 'roadmap', 'timeline',
+    'cronograma', 'pronosticos', 'distribucion', 'costos', 'equipo', 'metricas-dev',
+    'repositorios',
+  ],
+  '/api/departamentos': [
+    'dashboard', 'resumen', 'alertas', 'portafolio', 'roadmap', 'timeline',
+    'cronograma', 'pronosticos', 'distribucion', 'costos', 'equipo', 'metricas-dev',
+    'repositorios',
+  ],
   '/api/snapshots': [
     // GET — múltiples secciones cruzan snapshots para histórico/throughput.
     // POST tiene gate propio (`action:snapshot:create`) más abajo.

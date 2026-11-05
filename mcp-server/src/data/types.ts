@@ -170,20 +170,74 @@ export interface HitoRecord {
   avance: number;
 }
 
-/** Repositorio + roles de acceso GitHub por persona (hoja `repositorios`). */
+/** Repositorio + roles de acceso GitHub por persona (tabla `repositorio` / API `/api/repositorios`). */
 export interface RepoRecord {
+  id?: string;
+  empresa_id?: string;
   nombre: string;
   ambientes: string;
   estatus: string;
   dpto: string;
   producto: string;
   github: string;
+  tecnologia_principal?: string;
   /** Cada uno puede traer varios nombres concatenados ("Lorena Olvera, Edgar Torres"). */
   administrador: string;
   arquitecto: string;
   colaborador: string;
   visualizador: string;
   deploy: string;
+}
+
+// --- Organizaciones (Empresas y Departamentos) ---------------------------
+
+export interface EmpresaRecord {
+  id: string;
+  nombre: string;
+  moneda: string;
+  activa: boolean;
+  logo_url: string | null;
+}
+
+export interface DepartamentoRecord {
+  id: string;
+  nombre: string;
+  empresaId: string | null;
+  descripcion: string | null;
+  activo: boolean;
+}
+
+// --- Tecnologías y Skills Matrix -----------------------------------------
+
+export type TechnologyCategory =
+  | 'language'
+  | 'framework'
+  | 'database'
+  | 'devops'
+  | 'cloud'
+  | 'tool'
+  | 'mobile'
+  | 'design';
+
+export interface TechnologyRecord {
+  id: string;
+  name: string;
+  category: TechnologyCategory | string;
+  active: boolean;
+}
+
+export type SkillLevel = 'trainee' | 'jr' | 'mid' | 'sr' | 'arq';
+
+export interface TeamTechnologyRecord {
+  id: number;
+  equipoId: string;
+  technologyId: string;
+  level: SkillLevel | string;
+  updatedAt: string;
+  // Campos enriquecidos opcionales
+  personName?: string;
+  technologyName?: string;
+  category?: string;
 }
 
 export function isTareaDone(estatus: string | undefined): boolean {

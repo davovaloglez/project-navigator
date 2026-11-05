@@ -33,6 +33,18 @@ Claude Desktop ──stdio──> MCP server ──HTTPS── Astro app ── 
 ### Cursos
 - `list_courses` — filtros por equipoId, jefeId, ou, rol, jefe, rango de progreso.
 
+### Repositorios
+- `list_repositories` — lista repositorios de código de la organización (URLs de GitHub, ambientes, estatus, departamento, producto y tecnología principal). Permite filtrar por empresa, departamento, producto o búsqueda de texto.
+- `get_repository` — detalle completo de un repositorio por su nombre o ID, incluyendo colaboradores asignados por cada rol (administrador, arquitecto, colaborador, visualizador, deploy).
+
+### Organizaciones (Empresas y Departamentos)
+- `list_companies` — lista empresas registradas en Project Navigator (ej. Vortex IT, Bit Technologies), su moneda y estatus.
+- `list_departments` — lista los departamentos y áreas organizacionales, con filtro opcional por empresa.
+
+### Tecnologías y Skills
+- `list_technologies` — catálogo de tecnologías y habilidades (lenguajes, frameworks, bases de datos, devops, cloud, herramientas, diseño, mobile).
+- `get_team_skills` — matriz de habilidades del equipo: consulta qué personas dominan una tecnología (y a qué nivel: trainee, jr, mid, sr, arq) o lista las habilidades de una persona específica.
+
 ### Costos (gateados por `data:costos`)
 - `get_costs`, `get_financial_model`, `estimate_project_cost`, `estimate_person_cost`, `apply_financial_model`.
 

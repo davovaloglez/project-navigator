@@ -11,11 +11,14 @@ import { registerPortfolioTools } from './tools/portfolio.js';
 import { registerTeamTools } from './tools/team.js';
 import { registerGlossaryTools } from './tools/glossary.js';
 import { registerEvaluationTools } from './tools/evaluations.js';
+import { registerRepositoryTools } from './tools/repositories.js';
+import { registerOrganizationTools } from './tools/organizations.js';
+import { registerTechnologyTools } from './tools/technologies.js';
 
 async function main(): Promise<void> {
   const server = new McpServer({
     name: 'project-navigator',
-    version: '0.4.0',
+    version: '0.5.0',
   });
 
   registerProjectTools(server);
@@ -27,6 +30,9 @@ async function main(): Promise<void> {
   registerTeamTools(server);
   registerGlossaryTools(server);
   registerEvaluationTools(server);
+  registerRepositoryTools(server);
+  registerOrganizationTools(server);
+  registerTechnologyTools(server);
 
   const transport = new StdioServerTransport();
   await server.connect(transport);

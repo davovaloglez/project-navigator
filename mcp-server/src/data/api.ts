@@ -10,13 +10,18 @@
 import type {
   CostoRecord,
   CursoRecord,
+  DepartamentoRecord,
+  EmpresaRecord,
   EquipoRecord,
   EvaluacionRecord,
   FinancialModel,
   GlossaryEntry,
   GlossarySection,
   ProjectRecord,
+  RepoRecord,
   TareaRecord,
+  TeamTechnologyRecord,
+  TechnologyRecord,
 } from './types.js';
 
 const CACHE_TTL = 5 * 60 * 1000;
@@ -173,4 +178,74 @@ export interface GlossaryPayload {
  */
 export function loadGlossary(): Promise<GlossaryPayload> {
   return cached('glossary', () => fetchJson<GlossaryPayload>('/api/glossary'));
+}
+
+// --- Repositorios, Empresas, Departamentos y Tecnologías --------------------
+
+/**
+ * Repositorios de código y accesos por colaborador.
+ * Filtro opcional por empresa (?empresa=...).
+ */
+export function loadRepositorios(empresaId?: string): Promise<RepoRecord[]> {
+  const cacheKey = `repositorios:${empresaId ?? 'all'}`;
+  return cached(cacheKey, async () => {
+    const qs = empresaId ? `?empresa=${encodeURIComponent(empresaId)}` : '';
+    const raw = await fetchJson<RepoRecord[]>(`/api/repositorios${qs}`);
+    return raw ?? [];
+  });
+}
+
+/**
+ * Empresas registradas en el sistema.
+ */
+export function loadEmpresas(): Promise<EmpresaRecord[]> {
+  return cached('empresas', async () => {
+    const raw = await fetchJson<{ empresas: EmpresaRecord[] }>('/api/empresas');
+    return raw.empresas ?? [];
+  });
+}
+
+/**
+ * Departamentos registrados / organizacionales.
+ * Filtro opcional por empresa.
+ */
+export function loadDepartamentos(empresaId?: string): Promise<DepartamentoRecord[]> {
+  const cacheKey = `departamentos:${empresaId ?? 'all'}`;
+  return cached(cacheKey, async () => {
+    const qs = empresaId ? `?empresa=${encodeURIComponent(empresaId)}` : '';
+    const raw = await fetchJson<{ departamentos: DepartamentoRecord[] }>(`/api/departamentos${qs}`);
+    return raw.departamentos ?? [];
+  });
+}
+
+/**
+ * Catálogo maestro de tecnologías (habilidades).
+ */
+export function loadTechnologies(): Promise<TechnologyRecord[]> {
+  return cached('technologies', async () => {
+    const raw = await fetchJson<{ technologies: TechnologyRecord[] }>('/api/technologies');
+    return raw.technologies ?? [];
+  });
+}
+
+/**
+ * Matriz de tecnologías por persona del equipo.
+ */
+export function loadTeamTechnologies(filters?: {
+  technology?: string;
+  level?: string;
+  equipo?: string;
+}): Promise<TeamTechnologyRecord[]> {
+  const params = new URLSearchParams();
+  if (filters?.technology) params.set('technology', filters.technology);
+  if (filters?.level) params.set('level', filters.level);
+  if (filters?.equipo) params.set('equipo', filters.equipo);
+
+  const qs = params.toString() ? `?${params.toString()}` : '';
+  const cacheKey = `team-technologies:${qs}`;
+
+  return cached(cacheKey, async () => {
+    const raw = await fetchJson<{ rows: TeamTechnologyRecord[] }>(`/api/team-technologies${qs}`);
+    return raw.rows ?? [];
+  });
 }
