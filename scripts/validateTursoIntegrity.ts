@@ -68,6 +68,55 @@ async function main() {
   } catch (e) {
     console.log('Aviso al ejecutar foreign_key_check:', e instanceof Error ? e.message : e);
   }
+
+  console.log('\n--- Verificación de aislamiento multi-empresa (Tenant Integrity) ---');
+  try {
+    // 1. Proyectos vs Clientes
+    const badClientes = await db.execute(`
+      select count(*) as count
+      from "proyecto" p
+      join "cliente" c on c."id" = p."cliente_id"
+      where p."empresa_id" != c."empresa_id"
+    `);
+    const countBadClientes = badClientes.rows[0]?.count ?? 0;
+    if (countBadClientes === 0) {
+      console.log('✓ Proyecto -> Cliente: Aislamiento 100% OK.');
+    } else {
+      console.warn(`⚠️ Se detectaron ${countBadClientes} proyectos con clientes de otra empresa.`);
+    }
+
+    // 2. Proyectos vs Miembros asignados (PM, líderes, colaboradores)
+    const badMiembros = await db.execute(`
+      select count(*) as count
+      from "proyecto_miembro" pm
+      join "proyecto" p on p."id" = pm."proyecto_id"
+      join "empresa_miembro" m on m."id" = pm."miembro_id"
+      where p."empresa_id" != m."empresa_id"
+    `);
+    const countBadMiembros = badMiembros.rows[0]?.count ?? 0;
+    if (countBadMiembros === 0) {
+      console.log('✓ Proyecto -> Miembros (proyecto_miembro): Aislamiento 100% OK.');
+    } else {
+      console.warn(`⚠️ Se detectaron ${countBadMiembros} asignaciones de proyecto con miembros de otra empresa.`);
+    }
+
+    // 3. Tareas vs Miembros asignados
+    const badTareas = await db.execute(`
+      select count(*) as count
+      from "tarea" t
+      join "proyecto" p on p."id" = t."proyecto_id"
+      join "empresa_miembro" m on m."id" = t."asignado_miembro_id"
+      where p."empresa_id" != m."empresa_id"
+    `);
+    const countBadTareas = badTareas.rows[0]?.count ?? 0;
+    if (countBadTareas === 0) {
+      console.log('✓ Tarea -> Asignado: Aislamiento 100% OK.');
+    } else {
+      console.warn(`⚠️ Se detectaron ${countBadTareas} tareas asignadas a miembros de otra empresa.`);
+    }
+  } catch (e) {
+    console.error('Error al validar aislamiento multi-empresa:', e instanceof Error ? e.message : e);
+  }
 }
 
 main().catch((e) => {

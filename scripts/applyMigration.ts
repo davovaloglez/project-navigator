@@ -15,16 +15,41 @@ import { resolve } from 'node:path';
 import { createClient } from '@libsql/client';
 
 function splitStatements(sql: string): string[] {
-  // Strip comentarios -- linea y bloques /* */, luego split por ; tope.
+  // Strip comentarios -- linea y bloques /* */
   const cleaned = sql
     .replace(/\/\*[\s\S]*?\*\//g, '')
     .split('\n')
     .map((line) => line.replace(/--.*$/, ''))
     .join('\n');
-  return cleaned
-    .split(';')
-    .map((s) => s.trim())
-    .filter((s) => s.length > 0);
+
+  // Separar respetando bloques BEGIN ... END de TRIGGERS
+  const rawParts = cleaned.split(';');
+  const result: string[] = [];
+  let buffer = '';
+
+  for (const part of rawParts) {
+    const trimmed = part.trim();
+    if (!trimmed) continue;
+
+    buffer = buffer ? buffer + ';' + part : part;
+
+    // Contar occurrences de begin y end como palabras completas
+    const beginCount = (buffer.match(/\bbegin\b/gi) || []).length;
+    const endCount = (buffer.match(/\bend\b/gi) || []).length;
+
+    if (beginCount === endCount) {
+      if (buffer.trim().length > 0) {
+        result.push(buffer.trim());
+      }
+      buffer = '';
+    }
+  }
+
+  if (buffer.trim().length > 0) {
+    result.push(buffer.trim());
+  }
+
+  return result;
 }
 
 async function main() {
