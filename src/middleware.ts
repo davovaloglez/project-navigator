@@ -323,6 +323,13 @@ const handleRequest = async (context: APIContext, next: MiddlewareNext): Promise
       ) {
         return forbiddenJson();
       }
+      if (
+        pathname === '/api/proyectos' &&
+        context.request.method === 'PUT' &&
+        !evaluate(perms, 'action:proyecto:update')
+      ) {
+        return forbiddenJson();
+      }
       if (pathname.startsWith('/api/admin/equipo')) {
         // Gestión del registro `equipo`: permiso propio (no auth/user mgmt).
         if (!evaluate(perms, 'action:equipo:manage')) return forbiddenJson();

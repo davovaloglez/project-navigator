@@ -34,6 +34,7 @@ export const roles = {
       'repositorio:manage',
       'empresa:manage',
       'proyecto:create',
+      'proyecto:update',
     ],
     user: ['create', 'list', 'set-role', 'ban', 'impersonate', 'delete', 'set-password', 'get', 'update'],
     session: ['list', 'revoke', 'delete'],
@@ -51,6 +52,7 @@ export const roles = {
       'repositorio:manage',
       'empresa:manage',
       'proyecto:create',
+      'proyecto:update',
     ],
     user: ['create', 'list', 'set-role', 'ban', 'impersonate', 'delete', 'set-password', 'get', 'update'],
     session: ['list', 'revoke', 'delete'],
@@ -66,7 +68,7 @@ export const roles = {
   }),
   pm: ac.newRole({
     page: NON_ADMIN_PAGES.filter((p) => p !== 'costos'),
-    action: ['snapshot:create', 'proyecto:create'],
+    action: ['snapshot:create', 'proyecto:create', 'proyecto:update'],
   }),
   dev: ac.newRole({
     page: ['dashboard', 'portafolio', 'roadmap', 'timeline', 'cronograma', 'repositorios', 'metricas-dev', 'glosario'],

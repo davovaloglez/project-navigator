@@ -89,6 +89,8 @@ return new Response(JSON.stringify({ error: message }), {
 | Método | Path | Fuente | Cache | Propósito |
 |---|---|---|---|---|
 | GET | [`/api/proyectos`](proyectos.md) | `proyectos!A1:AH300` | 5 min | Portafolio de proyectos (`ProjectRecord[]`); identidad por `id`; roles multi-persona (`pmIds`/`arquitectoIds`/`devIds`/`poIds`/`sqaIds`) |
+| POST | [`/api/proyectos`](proyectos.md) | `proyectos!A1:AH300` | — | Crea un nuevo proyecto; escribe en Google Sheet y Turso; requiere permiso `action:proyecto:create` |
+| PUT | [`/api/proyectos`](proyectos.md) | `proyectos!A1:AH300` | — | Actualiza un proyecto existente; sincroniza Sheet y Turso; invalida cache; requiere permiso `action:proyecto:update` |
 | GET | [`/api/costos`](costos.md) | `Costos!A1:G50` (filas 1-12) | 5 min | Costos por rol (`CostoRecord[]`) — requiere `data:costos` |
 | GET | [`/api/costos-modelo`](costos-modelo.md) | `Costos!A1:G50` (filas 13-21) | 5 min | Modelo financiero de pricing — requiere `data:costos` |
 | GET | [`/api/cursos`](cursos.md) | `cursos!A1:J50` | 5 min | Progreso de cursos (`CursoRecord[]`); `equipoId` y `jefeId` resueltos |

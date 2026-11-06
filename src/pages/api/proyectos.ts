@@ -388,3 +388,266 @@ export const POST: APIRoute = async (context) => {
   }
 };
 
+/**
+ * PUT /api/proyectos
+ *
+ * Actualiza todos los campos de un proyecto en Turso (BBDD principal)
+ * y sincroniza la fila correspondiente en Google Sheets.
+ * Requiere permisos: admin, superadmin o pm (action:proyecto:update).
+ */
+export const PUT: APIRoute = async (context) => {
+  try {
+    const user = context.locals.user;
+    if (!user) {
+      return new Response(JSON.stringify({ error: 'No autorizado', code: 'UNAUTHORIZED' }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    const allowed = await can(user, 'action:proyecto:update');
+    if (!allowed) {
+      return new Response(JSON.stringify({ error: 'Permisos insuficientes para editar proyectos', code: 'FORBIDDEN' }), {
+        status: 403,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    const body = await context.request.json().catch(() => ({}));
+    const {
+      id,
+      actividad,
+      empresaId,
+      folio,
+      fechaInicio,
+      finEstimado,
+      finReal,
+      estatus = 'Activo',
+      prioridad = 'Media',
+      salud = 'Verde',
+      progreso,
+      puntos = 0,
+      tipo = '',
+      epica = '',
+      cuatrimestre = '',
+      url = '',
+      producto = '',
+      servicio = '',
+      aliado = 'Ninguno',
+      sprint = '',
+      pmIds = [],
+      arquitectoIds = [],
+      poIds = [],
+      sqaIds = [],
+      devIds = [],
+      requiereDe = '',
+      accionRequerida = '',
+      fechaAccion = '',
+    } = body;
+
+    if (!id || typeof id !== 'string') {
+      return new Response(JSON.stringify({ error: 'El ID del proyecto es obligatorio para editarlo' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    if (!actividad || !actividad.trim()) {
+      return new Response(JSON.stringify({ error: 'El nombre o actividad del proyecto es obligatorio' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    const db = getDbClient();
+    const finalEmpresaId = (empresaId && String(empresaId).trim()) || 'vortex-it';
+    const numProgreso = typeof progreso === 'number' ? progreso : parseFloat(String(progreso || '0')) || 0;
+
+    // Actualizar en base de datos `proyecto`
+    await db.execute({
+      sql: `
+        update proyecto set
+          folio = coalesce(nullif(?, ''), folio),
+          empresa_id = ?,
+          actividad = ?,
+          salud = ?,
+          accion_requerida = ?,
+          fecha_accion = ?,
+          progreso = ?,
+          tipo = ?,
+          prioridad = ?,
+          epica = ?,
+          hito = ?,
+          puntos = ?,
+          estatus = ?,
+          fecha_inicio = ?,
+          fin_estimado = ?,
+          fin_real = ?,
+          url = ?,
+          updated_at = datetime('now')
+        where id = ?
+      `,
+      args: [
+        folio ? String(folio).trim() : null,
+        finalEmpresaId,
+        actividad.trim(),
+        salud || 'Verde',
+        accionRequerida || null,
+        fechaAccion || null,
+        numProgreso > 1 ? numProgreso / 100 : numProgreso,
+        tipo || null,
+        prioridad || 'Media',
+        epica || null,
+        cuatrimestre || null,
+        Number(puntos) || 0,
+        estatus || 'Activo',
+        fechaInicio || null,
+        finEstimado || null,
+        finReal || null,
+        url || null,
+        id,
+      ],
+    });
+
+    // Actualizar miembros en `proyecto_miembro` (limpiar y reinsertar)
+    await db.execute({
+      sql: 'delete from proyecto_miembro where proyecto_id = ?',
+      args: [id],
+    });
+
+    const memberAssignments: Array<{ memberId: string; role: string }> = [
+      ...((pmIds as string[]) || []).map((mId) => ({ memberId: mId, role: 'pm' })),
+      ...((arquitectoIds as string[]) || []).map((mId) => ({ memberId: mId, role: 'arquitecto' })),
+      ...((poIds as string[]) || []).map((mId) => ({ memberId: mId, role: 'po' })),
+      ...((sqaIds as string[]) || []).map((mId) => ({ memberId: mId, role: 'sqa' })),
+      ...((devIds as string[]) || []).map((mId) => ({ memberId: mId, role: 'dev' })),
+    ];
+
+    for (const assignment of memberAssignments) {
+      if (!assignment.memberId) continue;
+      await db.execute({
+        sql: `
+          insert or ignore into empresa_miembro (id, empresa_id, full_name, nickname, activo)
+          values (?, ?, ?, ?, 1)
+        `,
+        args: [assignment.memberId, finalEmpresaId, assignment.memberId, assignment.memberId],
+      });
+
+      const pmId = `${id}-${assignment.memberId}-${assignment.role}`;
+      await db.execute({
+        sql: `
+          insert or replace into proyecto_miembro (id, proyecto_id, miembro_id, rol_proyecto, dedicacion_pct, activo)
+          values (?, ?, ?, ?, 100, 1)
+        `,
+        args: [pmId, id, assignment.memberId, assignment.role],
+      });
+    }
+
+    // Invalida cache de lectura
+    cache.invalidate();
+
+    // Sincronización asíncrona hacia Google Sheets (localizar fila por `id` y actualizar)
+    (async () => {
+      try {
+        const sheets = getSheets();
+        const sheetId = getSheetId();
+        if (!sheetId) return;
+
+        const res = await sheets.spreadsheets.values.get({
+          spreadsheetId: sheetId,
+          range: 'proyectos!A1:AJ300',
+        });
+        const rows = res.data.values || [];
+        if (rows.length < 2) return;
+
+        const col = makeColAccessor(rows[0]);
+        let targetRowIndex = -1;
+        for (let r = 1; r < rows.length; r++) {
+          if (cleanId(col(rows[r], 'id')) === cleanId(id)) {
+            targetRowIndex = r + 1; // 1-based row index en Sheet
+            break;
+          }
+        }
+
+        const equipoRes = await db.execute('select id, nickname, full_name from equipo');
+        const nameMap = new Map<string, string>();
+        for (const row of equipoRes.rows) {
+          nameMap.set(String(row.id), String(row.nickname || row.full_name || row.id));
+        }
+
+        const resolveDisplayNames = (ids: string[]) =>
+          ids.map((mId) => nameMap.get(mId) || mId).join(', ');
+
+        const pmStr = resolveDisplayNames(pmIds);
+        const arqStr = resolveDisplayNames(arquitectoIds);
+        const poStr = resolveDisplayNames(poIds);
+        const sqaStr = resolveDisplayNames(sqaIds);
+        const devsStr = resolveDisplayNames(devIds);
+        const progStr = `${Math.round((numProgreso > 1 ? numProgreso : numProgreso * 100))}%`;
+
+        const rowValues = [
+          id,                                      // id
+          folio || '',                             // Folio
+          actividad.trim(),                        // Nombre
+          toSheetDate(finEstimado),                // Fin Estimado
+          arqStr,                                  // Arquitecto
+          salud || 'Verde',                        // Salud
+          requiereDe || '',                        // Requiere de
+          accionRequerida || '',                   // Accion Requerida
+          toSheetDate(fechaAccion),                // Fecha de Accion
+          producto || 'Academic',                  // Producto
+          progStr,                                 // Progreso
+          tipo || 'API',                           // Tipo
+          prioridad || 'Media',                    // Prioridad
+          epica || '',                             // Épica (Producto)
+          cuatrimestre || '',                      // Cuatrimestre
+          String(puntos || 0),                     // Puntos
+          toSheetDate(new Date().toISOString().split('T')[0]), // Registro
+          toSheetDate(fechaInicio),                // Fecha Inicio
+          toSheetDate(finReal),                    // Fin Real
+          pmStr,                                   // PM
+          devsStr,                                 // Devs
+          estatus || 'Activo',                     // Estatus
+          url || '',                               // URL
+          servicio || 'Core',                      // Servicio
+          aliado || 'Ninguno',                     // Aliado
+          sprint || '',                            // Sprint
+          poStr,                                   // PO
+          sqaStr,                                  // SQA
+          arquitectoIds.join(', '),                // Arquitecto_ID
+          pmIds.join(', '),                        // PM_ID
+          devIds.join(', '),                       // DEVs_ID
+          poIds.join(', '),                        // PO_ID
+          sqaIds.join(', '),                       // SQA_ID
+          '',                                      // Requiere_ID
+        ];
+
+        if (targetRowIndex > 0) {
+          await sheets.spreadsheets.values.update({
+            spreadsheetId: sheetId,
+            range: `proyectos!A${targetRowIndex}:AJ${targetRowIndex}`,
+            valueInputOption: 'USER_ENTERED',
+            requestBody: {
+              values: [rowValues],
+            },
+          });
+        }
+      } catch (err) {
+        console.error('Error sincronizando edición de proyecto en Google Sheets:', err);
+      }
+    })();
+
+    return new Response(
+      JSON.stringify({
+        ok: true,
+        id,
+        message: 'Proyecto actualizado exitosamente.',
+      }),
+      { status: 200, headers: { 'Content-Type': 'application/json' } },
+    );
+  } catch (error) {
+    return serverErrorResponse(error, 'proyectos PUT');
+  }
+};
+
+

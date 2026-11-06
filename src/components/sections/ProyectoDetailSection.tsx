@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState, useEffect } from 'react';
-import { ExternalLink, ChevronLeft, ChevronRight, Clock, Star, TrendingUp, DollarSign, Target, LayoutDashboard, ListTree, CalendarRange, Link2 } from 'lucide-react';
+import { ExternalLink, ChevronLeft, ChevronRight, Clock, Star, TrendingUp, DollarSign, Target, LayoutDashboard, ListTree, CalendarRange, Link2, Edit3 } from 'lucide-react';
 import { usePersistedFilters } from '../../hooks/usePersistedFilters';
 import { useSheetData } from '../../hooks/useSheetData';
 import type { ProjectRecord, CostoRecord, TareaRecord, HitoRecord } from '../../utils/dataTransforms';
@@ -17,6 +17,7 @@ import DetalleTab from './proyecto-detalle/DetalleTab';
 import CronogramaTab from './proyecto-detalle/CronogramaTab';
 import RelacionadosTab from './proyecto-detalle/RelacionadosTab';
 import PronosticoTab from './proyecto-detalle/PronosticoTab';
+import EditProjectModal from '../projects/EditProjectModal';
 
 interface Props {
   id: string;
@@ -25,13 +26,15 @@ interface Props {
 type TabKey = 'resumen' | 'detalle' | 'cronograma' | 'relacionados' | 'pronostico';
 
 export default function ProyectoDetailSection({ id }: Props) {
-  const { data, loading, error } = useSheetData<ProjectRecord>('/api/proyectos');
+  const { data, loading, error, refetch } = useSheetData<ProjectRecord>('/api/proyectos');
   const costos = useSheetData<CostoRecord>('/api/costos');
   // Suplementarios: actividades + hitos del proyecto (no rompen la ficha si fallan/403)
   const tareasQ = useSheetData<TareaRecord>('/api/tareas');
   const hitosQ = useSheetData<HitoRecord>('/api/hitos');
 
   const perms = readInlinePermissions();
+  const canEdit = canWith(perms, 'action:proyecto:update');
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const { state: persisted, setState: setPersisted } = usePersistedFilters<{ tab: TabKey }>(
     'proyecto-detalle', { tab: 'resumen' },
   );
@@ -148,6 +151,15 @@ export default function ProyectoDetailSection({ id }: Props) {
             </div>
           </div>
           <div className="flex items-center gap-2 shrink-0 flex-wrap justify-end">
+            {canEdit && (
+              <button
+                type="button"
+                onClick={() => setIsEditModalOpen(true)}
+                className="flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-sm font-medium transition-all shadow-md shadow-purple-500/20 cursor-pointer"
+              >
+                <Edit3 className="w-4 h-4" /> Editar proyecto
+              </button>
+            )}
             <PageLink
               pageKey="pronosticos"
               href={`/pronosticos/${project.id}`}
@@ -229,6 +241,18 @@ export default function ProyectoDetailSection({ id }: Props) {
       )}
       {activeTab === 'pronostico' && canForecast && (
         <PronosticoTab project={project} allProjects={data} allTareas={tareasQ.data} />
+      )}
+
+      {/* Modal Editar Proyecto */}
+      {canEdit && (
+        <EditProjectModal
+          isOpen={isEditModalOpen}
+          project={project}
+          onClose={() => setIsEditModalOpen(false)}
+          onSuccess={() => {
+            refetch();
+          }}
+        />
       )}
     </div>
   );

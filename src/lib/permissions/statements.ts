@@ -50,6 +50,7 @@ export const statement = {
     'repositorio:manage',
     'empresa:manage',
     'proyecto:create',
+    'proyecto:update',
   ],
 } as const;
 
