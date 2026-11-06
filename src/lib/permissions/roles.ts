@@ -33,6 +33,7 @@ export const roles = {
       'tecnologia:manage',
       'repositorio:manage',
       'empresa:manage',
+      'proyecto:create',
     ],
     user: ['create', 'list', 'set-role', 'ban', 'impersonate', 'delete', 'set-password', 'get', 'update'],
     session: ['list', 'revoke', 'delete'],
@@ -49,6 +50,7 @@ export const roles = {
       'tecnologia:manage',
       'repositorio:manage',
       'empresa:manage',
+      'proyecto:create',
     ],
     user: ['create', 'list', 'set-role', 'ban', 'impersonate', 'delete', 'set-password', 'get', 'update'],
     session: ['list', 'revoke', 'delete'],
@@ -64,7 +66,7 @@ export const roles = {
   }),
   pm: ac.newRole({
     page: NON_ADMIN_PAGES.filter((p) => p !== 'costos'),
-    action: ['snapshot:create'],
+    action: ['snapshot:create', 'proyecto:create'],
   }),
   dev: ac.newRole({
     page: ['dashboard', 'portafolio', 'roadmap', 'timeline', 'cronograma', 'repositorios', 'metricas-dev', 'glosario'],

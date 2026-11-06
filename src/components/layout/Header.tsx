@@ -5,17 +5,19 @@ interface HeaderProps {
   title: string;
   onRefresh?: () => void;
   loading?: boolean;
+  children?: React.ReactNode;
 }
 
-export default function Header({ title, onRefresh, loading }: HeaderProps) {
+export default function Header({ title, onRefresh, loading, children }: HeaderProps) {
   const { theme, toggle } = useTheme();
 
   return (
-    <header className="flex items-center justify-between gap-3 mb-6 print:mb-2">
+    <header className="flex items-center justify-between gap-3 mb-6 print:mb-2 flex-wrap">
       <div className="min-w-0">
         <h2 className="text-xl sm:text-2xl font-bold text-white truncate">{title}</h2>
       </div>
       <div className="flex items-center gap-2 print:hidden shrink-0">
+        {children}
         <button
           onClick={toggle}
           className="flex items-center justify-center w-9 h-9 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg transition-colors"

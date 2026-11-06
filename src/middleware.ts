@@ -316,6 +316,13 @@ const handleRequest = async (context: APIContext, next: MiddlewareNext): Promise
       ) {
         return forbiddenJson();
       }
+      if (
+        pathname === '/api/proyectos' &&
+        context.request.method === 'POST' &&
+        !evaluate(perms, 'action:proyecto:create')
+      ) {
+        return forbiddenJson();
+      }
       if (pathname.startsWith('/api/admin/equipo')) {
         // Gestión del registro `equipo`: permiso propio (no auth/user mgmt).
         if (!evaluate(perms, 'action:equipo:manage')) return forbiddenJson();

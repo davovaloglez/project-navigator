@@ -49,6 +49,7 @@ export const statement = {
     'tecnologia:manage',
     'repositorio:manage',
     'empresa:manage',
+    'proyecto:create',
   ],
 } as const;
 

@@ -15,7 +15,7 @@ export function getSheets() {
   const credentials = JSON.parse(envVar('GOOGLE_CREDENTIALS') || '{}');
   const auth = new GoogleAuth({
     credentials,
-    scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
+    scopes: ['https://www.googleapis.com/auth/spreadsheets'],
   });
   _sheets = sheetsApi({ version: 'v4', auth });
   return _sheets;

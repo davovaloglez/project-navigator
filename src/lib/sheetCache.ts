@@ -19,5 +19,8 @@ export function createSheetCache<T>(opts?: { withEpoch?: () => number }) {
       cache = { data, timestamp: Date.now(), epoch: opts?.withEpoch ? opts.withEpoch() : 0 };
       return data;
     },
+    invalidate(): void {
+      cache = null;
+    },
   };
 }

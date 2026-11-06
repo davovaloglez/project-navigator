@@ -21,7 +21,9 @@ import PaginationControls, {
   sanitizePageSize,
   type PageSize,
 } from '../ui/PaginationControls';
-import { CheckCircle2 } from 'lucide-react';
+import { CheckCircle2, Plus } from 'lucide-react';
+import { usePermissions } from '../../hooks/usePermissions';
+import NewProjectModal from '../projects/NewProjectModal';
 
 // Enums estables (definen orden). Arquitecto/DEV/Cuatrimestre se derivan de
 // los datos (ver `filterConfigs`) porque dependen de la hoja y cambian.
@@ -33,6 +35,9 @@ const STATIC_FILTER_CONFIGS = [
 
 export default function ProyectosSection() {
   const { isScoped } = useScopeView();
+  const { can } = usePermissions();
+  const [isNewModalOpen, setIsNewModalOpen] = useState(false);
+  const canCreateProject = can('action:proyecto:create');
   const { data, loading, error, refetch } = useSheetData<ProjectRecord>('/api/proyectos');
   const tareasQ = useSheetData<TareaRecord>('/api/tareas');
   const cursosQ = useSheetData<CursoRecord>('/api/cursos');
@@ -203,7 +208,17 @@ export default function ProyectosSection() {
 
   return (
     <div>
-      <Header title="Portafolio" onRefresh={refetch} loading={loading} />
+      <Header title="Portafolio" onRefresh={refetch} loading={loading}>
+        {canCreateProject && (
+          <button
+            onClick={() => setIsNewModalOpen(true)}
+            className="flex items-center gap-1.5 px-3 sm:px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-medium transition-all shadow-md shadow-blue-500/20 cursor-pointer"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Nuevo Proyecto</span>
+          </button>
+        )}
+      </Header>
 
       {/* Filters */}
       <div className="mb-6 flex items-center gap-2 flex-wrap">
@@ -275,6 +290,17 @@ export default function ProyectosSection() {
         onPageSizeChange={setPageSize}
         className="mt-6"
       />
+
+      {/* Modal Alta de Proyecto */}
+      {canCreateProject && (
+        <NewProjectModal
+          isOpen={isNewModalOpen}
+          onClose={() => setIsNewModalOpen(false)}
+          onSuccess={() => {
+            refetch();
+          }}
+        />
+      )}
     </div>
   );
 }
