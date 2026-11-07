@@ -43,8 +43,8 @@ export default function NewProjectModal({ isOpen, onClose, onSuccess }: NewProje
     () => new Date().toISOString().split('T')[0],
   );
   const [finEstimado, setFinEstimado] = useState('');
-  const [estatus, setEstatus] = useState('Activo');
-  const [prioridad, setPrioridad] = useState('Media');
+  const [estatus, setEstatus] = useState('On Track');
+  const [prioridad, setPrioridad] = useState('Mayor');
 
   // Asignación de Roles
   const [pmId, setPmId] = useState('');
@@ -59,7 +59,7 @@ export default function NewProjectModal({ isOpen, onClose, onSuccess }: NewProje
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [puntos, setPuntos] = useState('0');
   const [tipo, setTipo] = useState('API');
-  const [salud, setSalud] = useState('Verde');
+  const [salud, setSalud] = useState('Estable');
   const [epica, setEpica] = useState('');
   const [cuatrimestre, setCuatrimestre] = useState(() => {
     const d = new Date();
@@ -342,11 +342,15 @@ export default function NewProjectModal({ isOpen, onClose, onSuccess }: NewProje
                 onChange={(e) => setEstatus(e.target.value)}
                 className="w-full px-3.5 py-2.5 bg-slate-800/80 border border-slate-700/80 rounded-xl text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50"
               >
-                <option value="Activo">Activo</option>
                 <option value="On Track">On Track</option>
                 <option value="At Risk">At Risk</option>
+                <option value="Blocked / Critical">Blocked / Critical</option>
                 <option value="Upcoming">Upcoming</option>
                 <option value="On Hold">On Hold</option>
+                <option value="Hypercare">Hypercare</option>
+                <option value="LaunchPhase">LaunchPhase</option>
+                <option value="Done">Done</option>
+                <option value="Cancelado">Cancelado</option>
               </select>
             </div>
 
@@ -359,9 +363,9 @@ export default function NewProjectModal({ isOpen, onClose, onSuccess }: NewProje
                 onChange={(e) => setPrioridad(e.target.value)}
                 className="w-full px-3.5 py-2.5 bg-slate-800/80 border border-slate-700/80 rounded-xl text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50"
               >
-                <option value="Mayor">Mayor</option>
-                <option value="Crítica">Crítica</option>
                 <option value="Bloqueadora">Bloqueadora</option>
+                <option value="Crítica">Crítica</option>
+                <option value="Mayor">Mayor</option>
                 <option value="Menor">Menor</option>
                 <option value="Trivial">Trivial</option>
               </select>
@@ -573,7 +577,22 @@ export default function NewProjectModal({ isOpen, onClose, onSuccess }: NewProje
 
             {showAdvanced && (
               <div className="pt-3 space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                  <div>
+                    <label className="block text-[11px] font-medium text-slate-400 mb-1">
+                      Salud
+                    </label>
+                    <select
+                      value={salud}
+                      onChange={(e) => setSalud(e.target.value)}
+                      className="w-full px-3 py-1.5 bg-slate-800/80 border border-slate-700/80 rounded-xl text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                    >
+                      <option value="Estable">Estable</option>
+                      <option value="Requiere atencion">Requiere atencion</option>
+                      <option value="En riesgo">En riesgo</option>
+                    </select>
+                  </div>
+
                   <div>
                     <label className="block text-[11px] font-medium text-slate-400 mb-1">
                       Puntos

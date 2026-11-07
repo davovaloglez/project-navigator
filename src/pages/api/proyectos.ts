@@ -233,11 +233,15 @@ export const POST: APIRoute = async (context) => {
         insert into proyecto (
           id, folio, empresa_id, actividad, salud, accion_requerida, fecha_accion,
           progreso, tipo, prioridad, epica, hito, cuenta, puntos, estatus,
-          fecha_registro, fecha_inicio, fin_estimado, url, created_at, updated_at
+          fecha_registro, fecha_inicio, fin_estimado, url,
+          producto, servicio, aliado, sprint,
+          created_at, updated_at
         ) values (
           ?, ?, ?, ?, ?, ?, ?,
           0, ?, ?, ?, ?, '', ?, ?,
-          ?, ?, ?, ?, datetime('now'), datetime('now')
+          ?, ?, ?, ?,
+          ?, ?, ?, ?,
+          datetime('now'), datetime('now')
         )
       `,
       args: [
@@ -245,19 +249,23 @@ export const POST: APIRoute = async (context) => {
         finalFolio,
         finalEmpresaId,
         actividad.trim(),
-        salud || 'Verde',
+        salud || 'Estable',
         accionRequerida || null,
         fechaAccion || null,
         tipo || null,
-        prioridad || 'Media',
+        prioridad || 'Mayor',
         epica || null,
         cuatrimestre || null,
         Number(puntos) || 0,
-        estatus || 'Activo',
+        estatus || 'On Track',
         today,
         fechaInicio || today,
         finEstimado || null,
         url || null,
+        producto || null,
+        servicio || null,
+        aliado || 'Ninguno',
+        sprint || null,
       ],
     });
 
@@ -328,14 +336,14 @@ export const POST: APIRoute = async (context) => {
           actividad.trim(),                        // Nombre
           toSheetDate(finEstimado),                // Fin Estimado
           arqStr,                                  // Arquitecto
-          salud || 'Verde',                        // Salud
+          salud || 'Estable',                      // Salud
           requiereDe || '',                        // Requiere de
           accionRequerida || '',                   // Accion Requerida
           toSheetDate(fechaAccion),                // Fecha de Accion
-          producto || 'Academic',                  // Producto
+          producto || '',                          // Producto
           '0%',                                    // Progreso
-          tipo || 'API',                           // Tipo
-          prioridad || 'Media',                    // Prioridad
+          tipo || '',                              // Tipo
+          prioridad || 'Mayor',                    // Prioridad
           epica || '',                             // Épica (Producto)
           cuatrimestre || '',                      // Cuatrimestre
           String(puntos || 0),                     // Puntos
@@ -344,9 +352,9 @@ export const POST: APIRoute = async (context) => {
           '',                                      // Fin Real
           pmStr,                                   // PM
           devsStr,                                 // Devs
-          estatus || 'Activo',                     // Estatus
+          estatus || 'On Track',                   // Estatus
           url || '',                               // URL
-          servicio || 'Core',                      // Servicio
+          servicio || '',                          // Servicio
           aliado || 'Ninguno',                     // Aliado
           sprint || '',                            // Sprint
           poStr,                                   // PO
@@ -463,6 +471,10 @@ export const PUT: APIRoute = async (context) => {
     const finalEmpresaId = (empresaId && String(empresaId).trim()) || 'vortex-it';
     const numProgreso = typeof progreso === 'number' ? progreso : parseFloat(String(progreso || '0')) || 0;
 
+    // Normalizar progreso: el form envía 0..100, la BBDD guarda 0..1.
+    // Caso borde: si el usuario ingresa exactamente 1 lo tratamos como 1%.
+    const normalizedProgreso = numProgreso > 1 ? numProgreso / 100 : numProgreso / 100;
+
     // Actualizar en base de datos `proyecto`
     await db.execute({
       sql: `
@@ -484,6 +496,10 @@ export const PUT: APIRoute = async (context) => {
           fin_estimado = ?,
           fin_real = ?,
           url = ?,
+          producto = ?,
+          servicio = ?,
+          aliado = ?,
+          sprint = ?,
           updated_at = datetime('now')
         where id = ?
       `,
@@ -491,20 +507,24 @@ export const PUT: APIRoute = async (context) => {
         folio ? String(folio).trim() : null,
         finalEmpresaId,
         actividad.trim(),
-        salud || 'Verde',
+        salud || 'Estable',
         accionRequerida || null,
         fechaAccion || null,
-        numProgreso > 1 ? numProgreso / 100 : numProgreso,
+        normalizedProgreso,
         tipo || null,
-        prioridad || 'Media',
+        prioridad || 'Mayor',
         epica || null,
         cuatrimestre || null,
         Number(puntos) || 0,
-        estatus || 'Activo',
+        estatus || 'On Track',
         fechaInicio || null,
         finEstimado || null,
         finReal || null,
         url || null,
+        producto || null,
+        servicio || null,
+        aliado || 'Ninguno',
+        sprint || null,
         id,
       ],
     });
@@ -583,7 +603,12 @@ export const PUT: APIRoute = async (context) => {
         const poStr = resolveDisplayNames(poIds);
         const sqaStr = resolveDisplayNames(sqaIds);
         const devsStr = resolveDisplayNames(devIds);
-        const progStr = `${Math.round((numProgreso > 1 ? numProgreso : numProgreso * 100))}%`;
+        const progStr = `${Math.round(normalizedProgreso * 100)}%`;
+
+        // Preservar la fecha de Registro original de la fila existente
+        const existingRegistro = targetRowIndex > 0
+          ? col(rows[targetRowIndex - 1], 'registro') || ''
+          : '';
 
         const rowValues = [
           id,                                      // id
@@ -591,25 +616,25 @@ export const PUT: APIRoute = async (context) => {
           actividad.trim(),                        // Nombre
           toSheetDate(finEstimado),                // Fin Estimado
           arqStr,                                  // Arquitecto
-          salud || 'Verde',                        // Salud
+          salud || 'Estable',                      // Salud
           requiereDe || '',                        // Requiere de
           accionRequerida || '',                   // Accion Requerida
           toSheetDate(fechaAccion),                // Fecha de Accion
-          producto || 'Academic',                  // Producto
+          producto || '',                          // Producto
           progStr,                                 // Progreso
-          tipo || 'API',                           // Tipo
-          prioridad || 'Media',                    // Prioridad
+          tipo || '',                              // Tipo
+          prioridad || 'Mayor',                    // Prioridad
           epica || '',                             // Épica (Producto)
           cuatrimestre || '',                      // Cuatrimestre
           String(puntos || 0),                     // Puntos
-          toSheetDate(new Date().toISOString().split('T')[0]), // Registro
+          existingRegistro,                        // Registro (preservar original)
           toSheetDate(fechaInicio),                // Fecha Inicio
           toSheetDate(finReal),                    // Fin Real
           pmStr,                                   // PM
           devsStr,                                 // Devs
-          estatus || 'Activo',                     // Estatus
+          estatus || 'On Track',                   // Estatus
           url || '',                               // URL
-          servicio || 'Core',                      // Servicio
+          servicio || '',                          // Servicio
           aliado || 'Ninguno',                     // Aliado
           sprint || '',                            // Sprint
           poStr,                                   // PO

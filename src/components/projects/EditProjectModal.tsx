@@ -48,9 +48,9 @@ export default function EditProjectModal({
   const [fechaInicio, setFechaInicio] = useState(project.fechaInicio || '');
   const [finEstimado, setFinEstimado] = useState(project.finEstimado || '');
   const [finReal, setFinReal] = useState(project.finReal || '');
-  const [estatus, setEstatus] = useState(project.estatus || 'Activo');
-  const [prioridad, setPrioridad] = useState(project.prioridad || 'Media');
-  const [salud, setSalud] = useState(project.salud || 'Verde');
+  const [estatus, setEstatus] = useState(project.estatus || 'On Track');
+  const [prioridad, setPrioridad] = useState(project.prioridad || 'Mayor');
+  const [salud, setSalud] = useState(project.salud || 'Estable');
   const [progreso, setProgreso] = useState(
     project.progreso != null
       ? String(
@@ -104,9 +104,9 @@ export default function EditProjectModal({
     setFechaInicio(project.fechaInicio || '');
     setFinEstimado(project.finEstimado || '');
     setFinReal(project.finReal || '');
-    setEstatus(project.estatus || 'Activo');
-    setPrioridad(project.prioridad || 'Media');
-    setSalud(project.salud || 'Verde');
+    setEstatus(project.estatus || 'On Track');
+    setPrioridad(project.prioridad || 'Mayor');
+    setSalud(project.salud || 'Estable');
     setProgreso(
       project.progreso != null
         ? String(
@@ -391,7 +391,6 @@ export default function EditProjectModal({
                   onChange={(e) => setEstatus(e.target.value)}
                   className="w-full px-3 py-2 bg-slate-800/80 border border-slate-700/80 rounded-xl text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50"
                 >
-                  <option value="Activo">Activo</option>
                   <option value="On Track">On Track</option>
                   <option value="At Risk">At Risk</option>
                   <option value="Blocked / Critical">Blocked / Critical</option>
@@ -413,9 +412,9 @@ export default function EditProjectModal({
                   onChange={(e) => setSalud(e.target.value)}
                   className="w-full px-3 py-2 bg-slate-800/80 border border-slate-700/80 rounded-xl text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50"
                 >
-                  <option value="Verde">Verde (Saludable)</option>
-                  <option value="Amarillo">Amarillo (Atención)</option>
-                  <option value="Rojo">Rojo (En riesgo)</option>
+                  <option value="Estable">Estable</option>
+                  <option value="Requiere atencion">Requiere atencion</option>
+                  <option value="En riesgo">En riesgo</option>
                 </select>
               </div>
 
@@ -431,7 +430,6 @@ export default function EditProjectModal({
                   <option value="Bloqueadora">Bloqueadora</option>
                   <option value="Crítica">Crítica</option>
                   <option value="Mayor">Mayor</option>
-                  <option value="Media">Media</option>
                   <option value="Menor">Menor</option>
                   <option value="Trivial">Trivial</option>
                 </select>
